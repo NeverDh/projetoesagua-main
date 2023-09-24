@@ -1,0 +1,35 @@
+{
+    "Type": "send_message",
+    "IsSync": true,
+    "Body": {
+        "Info": {
+            "Id": "81A263DFA84D2D36896C907C5193F2D9",
+            "RemoteJid": "5521968497739@s.whatsapp.net",
+            "SenderJid": "5521992193853@s.whatsapp.net",
+            "FromMe": true,
+            "Timestamp": 1694267761,
+            "PushName": "Luís Santana",
+            "Status": 3,
+            "Ctwa": null,
+            "Source": {
+                "key": {
+                    "remoteJid": "5521968497739@s.whatsapp.net",
+                    "fromMe": true,
+                    "id": "81A263DFA84D2D36896C907C5193F2D9"
+                },
+                "message": {
+                    "conversation": "Um pouco dos dois"
+                },
+                "messageTimestamp": 1694267761,
+                "ephemeralOutOfSync": false
+            }
+        },
+        "Text": "Um pouco dos dois",
+        "ContextInfo": {
+            "QuotedMessageID": "D56149E2CEFBD882552D2E982E27FBC7",
+            "QuotedMessage": "",
+            "Participant": "",
+            "IsForwarded": false
+        }
+    }
+}
