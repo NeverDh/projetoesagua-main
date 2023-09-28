@@ -133,7 +133,7 @@ def integrarPlanilhas():
 
         plan.to_excel("contatos_processo.xlsx", index=False)
 
-        contatos_processo = pd.read_excel("contatos_processo.xlsx")
+    contatos_processo = pd.read_excel("contatos_processo.xlsx")
 
     for index, item in enumerate(contatos_processo["Telefone"]):
         dados = {

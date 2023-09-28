@@ -24,7 +24,7 @@ def enviarNotificacao():
     None
 
 def iniciarServer():
-    app.run(port=5000)
+    app.run(port=7399)
 
 
 @app.route("/chat", methods=['POST'])
