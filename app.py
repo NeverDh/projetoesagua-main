@@ -1,10 +1,8 @@
 from flask import Flask, request
-import json
-import schedule
-import time
 import threading
 from importacoes import *
 import auxiliar
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -18,6 +16,15 @@ app = Flask(__name__)
 
 # def enviarMensagem():
 #     print("Teste")
+
+# def continuarProcessos():
+#     contatos_processo = pd.read_excel("contatos_processo.xlsx")
+
+def enviarNotificacao():
+    None
+
+def iniciarServer():
+    app.run(port=5000)
 
 
 @app.route("/chat", methods=['POST'])
@@ -33,10 +40,7 @@ def chat():
 
 @app.route("/", methods=['POST'])
 def index():
-    return "ROBO"
-
-def iniciarServer():
-    app.run(port=5000)
+    return "ROBO EM FUNCIONAMENTO"
 
 if __name__ == "__main__":
     y = threading.Thread(target=iniciarServer)
@@ -44,4 +48,5 @@ if __name__ == "__main__":
     objeto_automacao_planilha = planilhauto()
     objeto_automacao_planilha.automacao_planilha()
     auxiliar.integrarPlanilhas()
+
     

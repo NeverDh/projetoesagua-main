@@ -2,7 +2,7 @@ from importacoes import *
 
 
 class RetornarData:
-    def retornar_datas(self, enviar=False, opcao=None):
+    def retornar_datas(self, enviar=False, opcao=None, pegar=None):
         SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events']
         SERVICE_ACCOUNT_FILE = 'credentials.json'
         from collections import defaultdict
