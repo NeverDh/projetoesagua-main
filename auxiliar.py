@@ -14,39 +14,41 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
         case 1:
             print("Entrei no um")
             atualizarPlanilha(processo=2, index=index)
-            gerenciarProcesso(processo=2, numero=numero, mensagem=None, index=index)
+            gerenciarProcesso(processo=2, numero=numero, mensagem=mensagem, index=index)
         case 2:
             print("Entrei no dois")
             if str(mensagem) == "1":
                 atualizarPlanilha(processo=3, index=index)
-                gerenciarProcesso(processo=3, numero=numero, mensagem=None, index=index)
+                gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
             else:
                 atualizarPlanilha(processo=7, index=index)
         case 3:
             print("Entrei no três")
             objeto_retorna_data = RetornarData()
             datas = objeto_retorna_data.retornar_datas()
-            inserirPlanilha(quantidade=len(datas), index=index)
             tamanhoData = len(datas)
-            datas = tratarDatas(datas)
-            mensagem = f"Escolha uma das datas abaixo!\nEscolha o número em negrito para selecionar a data\n\n"
-            mensagem += datas
-            enviarMensagem(mensagem=mensagem, numero=numero)
-            atualizarPlanilha(processo=3, index=index)
-            gerenciarProcesso(processo=4, numero=numero, mensagem=None, index=index, datas=datas, quantidade=tamanhoData)
+            inserirPlanilha(quantidade=tamanhoData, index=index)
+            datasWP = tratarDatas(datas)
+            mensagemWP = f"Escolha uma das datas abaixo!\nEscolha o número em negrito para selecionar a data\n\n"
+            mensagemWP += datasWP
+            enviarMensagem(mensagem=mensagemWP, numero=numero)
+            atualizarPlanilha(processo=4, index=index)
         case 4:
             #MARCAR DATA NO GOOGLE AGENDA E NOTIFICAR
             print("Entrei no quatro")
-            data = datas[int(mensagem)][1]
+            
             objeto_retorna_data = RetornarData()
             datas = objeto_retorna_data.retornar_datas()
-            if len(data) != quantidade:
+            quantidade = int(pegarDados(index=index, quantidade=quantidade))
+            if len(datas) != quantidade:
                 enviarMensagem(mensagem="Peço perdão, mas essa data não está mais disponivél!\n", numero=numero)
-                gerenciarProcesso(processo=3, numero=numero, mensagem=None, index=index)
+                gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
+            data = str((datas[int(mensagem)][1])[0:16])
+            inserirPlanilha(data=data, index=index)
             objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True)
             enviarMensagem(mensagem="Data confirmada!\nAtendimento encerrado!", numero=numero)
             atualizarPlanilha(processo=5, index=index)
-            inserirPlanilha(data=data, index=index)
+            
         case 5:
             #ENVIAR NOTIFICAÇÃO DE CONFIRMAÇÃO
             None
@@ -84,30 +86,34 @@ def atualizarPlanilha(processo, index):
     contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
 def inserirPlanilha(data=None, index=None, quantidade=None, confirmado=None):
-    if data:
+
+    print("INSERIR PLANILHA")
+    if data != None:
+        print("INSERIR DATA")
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         contatos_processo.at[index, "Data"] = data
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
-    if quantidade:
+    if quantidade != None:
+        print("INSERIR QUANTIDADE")
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
-        contatos_processo.at[index, "Quantidade"] = data
+        contatos_processo.at[index, "Quantidade"] = quantidade
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
-    if confirmado:
+    if confirmado != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
-        contatos_processo.at[index, "Confirmado"] = data
+        contatos_processo.at[index, "Confirmado"] = confirmado
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
 
 def pegarDados(data=None, index=None, quantidade=None, confirmado=None):
-    if data:
+    if data != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         return contatos_processo.at[index, "Data"]
 
-    if quantidade:
+    if quantidade != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         return contatos_processo.at[index, "Quantidade"]
         
-    if confirmado:
+    if confirmado != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         return contatos_processo.at[index, "Confirmado"]
         
@@ -133,7 +139,7 @@ def integrarPlanilhas():
 
         plan.to_excel("contatos_processo.xlsx", index=False)
 
-    contatos_processo = pd.read_excel("contatos_processo.xlsx")
+        contatos_processo = pd.read_excel("contatos_processo.xlsx")
 
     for index, item in enumerate(contatos_processo["Telefone"]):
         dados = {
@@ -150,7 +156,8 @@ def integrarPlanilhas():
                 'Telefone': item,
                 'Processo': 2,
                 'Data': "Não",
-                'Confirmado': "Não"
+                'Confirmado': "Não",
+                'Quantidade': "0"
             }
 
             dadosArray.append(dados)

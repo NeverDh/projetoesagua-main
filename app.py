@@ -24,15 +24,20 @@ def enviarNotificacao():
     None
 
 def iniciarServer():
-    app.run(port=7399)
+    app.run(port=5000)
 
 
 @app.route("/chat", methods=['POST'])
 def chat():
     try:
-        verifica = request.json["Type"]
-        thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
-        thread.start()
+        verifica = request.json
+        if verifica["Type"] == "receveid_message":
+            numero = (verifica["Body"]["Info"]["RemoteJid"])[4:13]
+            processoIndex = auxiliar.verificarProcesso(numero)
+            print(processoIndex)
+            if processoIndex != None:
+                thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
+                thread.start()
     except Exception as e:
         return "Não interessa"
     return "Concluído"
