@@ -34,14 +34,12 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             enviarMensagem(mensagem=mensagemWP, numero=numero)
             atualizarPlanilha(processo=4, index=index)
         case 4:
-            #MARCAR DATA NO GOOGLE AGENDA E NOTIFICAR
             print("Entrei no quatro")
-            
             objeto_retorna_data = RetornarData()
             datas = objeto_retorna_data.retornar_datas()
             quantidade = int(pegarDados(index=index, quantidade=quantidade))
             if len(datas) != quantidade:
-                enviarMensagem(mensagem="Peço perdão, mas essa data não está mais disponivél!\n", numero=numero)
+                enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
                 gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
             data = str((datas[int(mensagem)][1])[0:16])
             inserirPlanilha(data=data, index=index)
@@ -50,12 +48,14 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             atualizarPlanilha(processo=5, index=index)
             
         case 5:
-            #ENVIAR NOTIFICAÇÃO DE CONFIRMAÇÃO
             None
         case 6:
             None
         case 7:
             None
+        case 8:
+            None
+            
 
 def enviarMensagem(mensagem, numero):
     url = "https://v5.chatpro.com.br/chatpro-893b2f502e/api/v1/send_message"
@@ -141,7 +141,7 @@ def integrarPlanilhas():
 
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
 
-    for index, item in enumerate(contatos_processo["Telefone"]):
+    for index, _ in enumerate(contatos_processo["Telefone"]):
         dados = {
             "Telefone": contatos_processo["Telefone"][index],
             "Processo": contatos_processo["Processo"][index]

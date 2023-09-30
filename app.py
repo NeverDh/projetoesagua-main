@@ -2,26 +2,31 @@ from flask import Flask, request
 import threading
 from importacoes import *
 import auxiliar
-import pandas as pd
+import schedule
 
 app = Flask(__name__)
 
 #DESENVOLVENDO WEBHOOK#
-    
-# def verificarProcessos():
-#     schedule.every(1).seconds.do(enviarMensagem)
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)
 
-# def enviarMensagem():
-#     print("Teste")
+def exportarContatos():
+    objeto_exportar = exportar()
+    objeto_exportar.exportacao_contatos()
 
-# def continuarProcessos():
-#     contatos_processo = pd.read_excel("contatos_processo.xlsx")
+def integrarPlanilhas():
+    objeto_automacao_planilha = planilhauto()
+    objeto_automacao_planilha.automacao_planilha()
+    auxiliar.integrarPlanilhas()
 
 def enviarNotificacao():
     None
+
+    
+def verificarProcessos():
+    schedule.every(60).minutes.do(exportarContatos)
+    schedule.every(70).minutes.do(integrarPlanilhas)
+    while True:
+        schedule.run_pending()
+        time.sleep(2400)
 
 def iniciarServer():
     app.run(port=5000)
@@ -50,8 +55,5 @@ def index():
 if __name__ == "__main__":
     y = threading.Thread(target=iniciarServer)
     y.start()
-    objeto_automacao_planilha = planilhauto()
-    objeto_automacao_planilha.automacao_planilha()
-    auxiliar.integrarPlanilhas()
-
+    verificarProcessos()
     
