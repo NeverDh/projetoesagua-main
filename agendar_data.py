@@ -2,7 +2,7 @@ from importacoes import *
 
 
 class RetornarData:
-    def retornar_datas(self, enviar=False, opcao=None, pegar=None):
+    def retornar_datas(self, enviar=False, opcao=None, pegar=None, codigo_imovel=None):
         SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events']
         SERVICE_ACCOUNT_FILE = 'credentials.json'
         from collections import defaultdict
@@ -14,7 +14,6 @@ class RetornarData:
 
         # Defina o ID da agenda
         calendar_id = 'mayconhenrique360@gmail.com'
-
         now = datetime.datetime.utcnow()
         start_date = now.date()  # Data de hoje
         end_date = start_date + datetime.timedelta(days=60)  # Data daqui a um ano
@@ -26,7 +25,7 @@ class RetornarData:
             timeMax=end_date.isoformat() + 'T23:59:59Z',
             singleEvents=True,
             orderBy='startTime',
-            q='disponivel'  # Filtro para eventos com a descrição "disponivel.imoveis"
+            q=f'disponivel,{codigo_imovel}' if codigo_imovel !=None else 'disponivel' # Filtro para eventos com a descrição "disponivel.imoveis"
         ).execute()
 
         # Criando a lista do index e a lista dos horários
@@ -78,7 +77,7 @@ class RetornarData:
                 event = service.events().get(calendarId='mayconhenrique360@gmail.com', eventId=index_texto).execute()
                 # Corpo do novo evento(transformando numa data indisponivel)
                 event = {
-                    'summary': 'Visita agendada',
+                    'summary': f'Visita agendada, {codigo_imovel}',
                     'description': 'Agendado',
                     'start': {
                         'date': data_texto,

@@ -1,7 +1,7 @@
 from importacoes import *
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-893b2f502e/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-173eb7c207/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -9,7 +9,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "3a0e2161eb1c5d3b6b525d557624ff16"
+        "Authorization": "e8684a636db3f121067d9de5aa06ed80"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -17,35 +17,53 @@ def enviarMensagem(mensagem, numero):
     print(response.text)
 
 class planilhauto:
+
     def automacao_planilha(self):
         ##CONFIGURANDO PLANILHAS##
         ##PRIMEIRA 
         planilha = pandas.read_excel('contatos.xlsx')
-        planilha_contatos = planilha['Telefone'].unique()
+        planilha_contatos = planilha['Telefone']
+        planilha_codigoimoveis = planilha['Código do imóvel']
+        planilha_link = planilha['link']
+    
+        links = []
+        for link in planilha_link:
+            link = str(link).split(",")
+            links.append(link[1])
+
+        ids = []
+        for id in planilha_codigoimoveis:
+            ids.append(id)
 
         ##SEGUNDA
         planilha_checados = pandas.read_excel('contatos_checados.xlsx')
-        planilha_checados_contatos = planilha_checados['Telefone']
-        indice_planilha_contatos = planilha_checados['Telefone'].last_valid_index() + 1
+        planilha_checados["Código do imóvel"] = planilha_checados["Código do imóvel"].astype(str)
+        indice_planilha_contatos = planilha_checados['Telefone'].last_valid_index() +1
+        indice_planilha_codigo = planilha_checados['Código do imóvel'].last_valid_index() +1
+        indice_planilha_link = planilha_checados['link'].last_valid_index() +1
+
 
         #CRIANDO AS LISTAS
         numeros_exportados = []
         numero_checados = planilha_checados['Telefone'].tolist()
+        codigoimoveis_exportados = []
+        codigo_checados = planilha_checados['Código do imóvel'].tolist()
+
+        for id in planilha_codigoimoveis:
+            codigoimoveis_exportados.append(id)
 
         for numero in planilha_contatos:
             numeros_exportados.append(numero)
 
-        for numero in numeros_exportados:
-            if numero in numero_checados:
-                print("Numero {} já foi notificado".format(numero))
+        for index, numero in enumerate(planilha_contatos):
+            if numero in numero_checados and ids[index] in codigo_checados:
+                print("Numero {} que solicitou agendamento no imovel {} já foi notificado".format(numero, ids[index]))
             else:
-                mensagem = "Olá, tudo bem? Vimos que tem interesse em alguns de nossos imóveis.\nDeseja realizar uma visita?\n1 - Sim\n2 - Não"
+                mensagem = f"Olá, tudo bem? verificamos que você buscou um imóvel no nosso ZAP imóveis.\nImóvel: {links[index]}\nDeseja realizar uma visita?\n1 - Sim\n2 - Não"
                 enviarMensagem(mensagem=mensagem, numero=str(numero))
-                print("Mensagem enviada para o numero {}".format(numero))
-                
                 planilha_checados.loc[indice_planilha_contatos, 'Telefone'] = numero
                 indice_planilha_contatos += 1
-
-
+                planilha_checados.loc[indice_planilha_codigo, 'Código do imóvel'] = str(ids[index])
+                indice_planilha_codigo += 1
 
         planilha_checados.to_excel('contatos_checados.xlsx', index=False)

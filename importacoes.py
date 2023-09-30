@@ -40,3 +40,5 @@ import locale
 from collections import defaultdict
 from agendar_data import RetornarData
 from excluir_agendamento import excluiragendamento
+from email.message import EmailMessage
+import smtplib

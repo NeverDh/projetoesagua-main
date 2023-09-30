@@ -2,6 +2,41 @@ import pandas as pd
 from importacoes import *
 import requests
 
+def enviarEmail(data, numero):
+    email = 'itaimoveis7@gmail.com'
+    senha = 'qrcswpxbuienlyze'
+
+
+    msg0= EmailMessage()
+    msg0['Subject'] = 'Agendamento feito'
+    msg0['From'] = 'itaimoveis7@gmail.com'
+    msg0['To'] = 'itaimoveis7@gmail.com'
+    mensagem = f"""
+                Olá, Gostaria de compartilhar uma ótima notícia! Um novo horário foi agendado com sucesso através do nosso robô de WhatsApp. Abaixo estão os detalhes do agendamento:
+                Data e Horário: {data}
+                Contato do Cliente: {numero}
+                
+                Atenciosamente,
+                Robô Ita Imóveis
+                """
+    msg0.set_content(mensagem)
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(email, senha)
+        smtp.send_message(msg0)
+
+    # Adicionar marcador ao e-mail usando IMAP
+    with imaplib.IMAP4_SSL('imap.gmail.com') as imap:
+        imap.login(email, senha)
+        imap.select('inbox')
+        
+        # Procurar pelo e-mail enviado recentemente (pode ser necessário ajustar isso)
+        status, email_ids = imap.search(None, 'FROM', email)
+        if status == 'OK' and email_ids:
+            email_id = email_ids[0].split()[-1]  # Pega o ID do e-mail mais recente
+            
+            # Adicione o marcador ao e-mail (substitua 'Marcador' pelo nome do marcador desejado)
+            imap.store(email_id, '+X-GM-LABELS', 'Datas')
+
 def tratarDatas(datas):
     datasFormatadas = ""
     for data in datas:
@@ -22,10 +57,13 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
             else:
                 atualizarPlanilha(processo=7, index=index)
+
         case 3:
+
             print("Entrei no três")
+            codImovel = pegarDados(codImovel=True, index=index)
             objeto_retorna_data = RetornarData()
-            datas = objeto_retorna_data.retornar_datas()
+            datas = objeto_retorna_data.retornar_datas(codigo_imovel=codImovel)
             tamanhoData = len(datas)
             inserirPlanilha(quantidade=tamanhoData, index=index)
             datasWP = tratarDatas(datas)
@@ -33,19 +71,26 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             mensagemWP += datasWP
             enviarMensagem(mensagem=mensagemWP, numero=numero)
             atualizarPlanilha(processo=4, index=index)
+
         case 4:
+
             print("Entrei no quatro")
+            codImovel = str(pegarDados(codImovel=True, index=index))
             objeto_retorna_data = RetornarData()
-            datas = objeto_retorna_data.retornar_datas()
+            datas = objeto_retorna_data.retornar_datas(codigo_imovel=codImovel)
             quantidade = int(pegarDados(index=index, quantidade=quantidade))
             if len(datas) != quantidade:
                 enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
                 gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
+            dataEmail = f"{(datas[int(mensagem)][1])[8:10]}/{(datas[int(mensagem)][1])[5:7]}/{(datas[int(mensagem)][1])[0:4]} às {(datas[int(mensagem)][1])[11:16]}"
+            print(dataEmail)
             data = str((datas[int(mensagem)][1])[0:16])
             inserirPlanilha(data=data, index=index)
-            objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True)
+            objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True, codigo_imovel=codImovel)
             enviarMensagem(mensagem="Data confirmada!\nAtendimento encerrado!", numero=numero)
+            enviarEmail(dataEmail, numero)
             atualizarPlanilha(processo=5, index=index)
+
             
         case 5:
             None
@@ -58,7 +103,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-893b2f502e/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-173eb7c207/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -66,7 +111,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "3a0e2161eb1c5d3b6b525d557624ff16"
+        "Authorization": "e8684a636db3f121067d9de5aa06ed80"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -85,7 +130,7 @@ def atualizarPlanilha(processo, index):
     contatos_processo.at[index, "Processo"] = processo
     contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
-def inserirPlanilha(data=None, index=None, quantidade=None, confirmado=None):
+def inserirPlanilha(data=None, index=None, quantidade=None, confirmado=None, codImovel=None):
 
     print("INSERIR PLANILHA")
     if data != None:
@@ -93,18 +138,25 @@ def inserirPlanilha(data=None, index=None, quantidade=None, confirmado=None):
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         contatos_processo.at[index, "Data"] = data
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
+
     if quantidade != None:
         print("INSERIR QUANTIDADE")
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         contatos_processo.at[index, "Quantidade"] = quantidade
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
+
     if confirmado != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         contatos_processo.at[index, "Confirmado"] = confirmado
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
+    if codImovel != None:
+        contatos_processo = pd.read_excel("contatos_processo.xlsx")
+        contatos_processo.at[index, "codImovel"] = codImovel
+        contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
-def pegarDados(data=None, index=None, quantidade=None, confirmado=None):
+
+def pegarDados(data=None, index=None, quantidade=None, confirmado=None, codImovel=None):
     if data != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         return contatos_processo.at[index, "Data"]
@@ -116,6 +168,10 @@ def pegarDados(data=None, index=None, quantidade=None, confirmado=None):
     if confirmado != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         return contatos_processo.at[index, "Confirmado"]
+    
+    if codImovel != None:
+        contatos_processo = pd.read_excel("contatos_processo.xlsx")
+        return contatos_processo.at[index, "codImovel"]
         
 
 
@@ -130,7 +186,8 @@ def integrarPlanilhas():
                 'Processo': "0",
                 'Data': "Não",
                 'Confirmado': "Não",
-                'Quantidade': "0"
+                'Quantidade': "0",
+                'codImovel': "Não"
             }
 
         dadosArray.append(dados)
@@ -148,7 +205,7 @@ def integrarPlanilhas():
         }
         dadosArray.append(dados)
 
-    for item in contatos_checados["Telefone"]:
+    for index, item in enumerate(contatos_checados["Telefone"]):
         if item == 1:
             continue
         if item not in [i for i in contatos_processo["Telefone"]]:
@@ -157,7 +214,8 @@ def integrarPlanilhas():
                 'Processo': 2,
                 'Data': "Não",
                 'Confirmado': "Não",
-                'Quantidade': "0"
+                'Quantidade': "0",
+                'codImovel': contatos_checados['Código do imóvel'][index]
             }
 
             dadosArray.append(dados)

@@ -26,7 +26,7 @@ def verificarProcessos():
     schedule.every(70).minutes.do(integrarPlanilhas)
     while True:
         schedule.run_pending()
-        time.sleep(2400)
+        time.sleep(1)
 
 def iniciarServer():
     app.run(port=5000)
@@ -55,5 +55,5 @@ def index():
 if __name__ == "__main__":
     y = threading.Thread(target=iniciarServer)
     y.start()
-    verificarProcessos()
+    integrarPlanilhas()
     
