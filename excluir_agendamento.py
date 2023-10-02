@@ -1,7 +1,7 @@
 from importacoes import * 
 
 class excluiragendamento:  
-    def removeragendamento(self):
+    def removeragendamento(self, numero=None, codigo_imovel=None):
         SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events']
         SERVICE_ACCOUNT_FILE = 'credentials.json'
         from collections import defaultdict
@@ -18,14 +18,14 @@ class excluiragendamento:
         start_date = now.date()  # Data de hoje
         end_date = start_date + datetime.timedelta(days=60)  # Data daqui a um ano
 
-        ## Listando eventos que possuem 'disponivel' na descrição
+        ## Listando eventos que possuem 'Agendado' na descrição
         events_result = service.events().list(
             calendarId=calendar_id,
             timeMin=start_date.isoformat() + 'T00:00:00Z',
             timeMax=end_date.isoformat() + 'T23:59:59Z',
             singleEvents=True,
             orderBy='startTime',
-            q='agendado'  # Filtro para eventos com a descrição "agendado"
+            q=f'Agendado,{numero},{codigo_imovel}'  # Filtro para eventos com a descrição "agendado"
         ).execute()
 
         # Criando a lista do index e a lista dos horários
@@ -55,7 +55,7 @@ class excluiragendamento:
                 eventos = (list(enumerate(index.keys(), 0)))
                 eventos_id = (list(enumerate(index2.keys(), 0)))
 
-                print(eventos)
+                print(eventos_id)
 
 
             if not eventos:
@@ -63,21 +63,19 @@ class excluiragendamento:
             else:
                 escolha = int(input("Deseja excluir agendamento?\n 1- SIM\n 2- NÃO\n"))
                 if escolha == 1:
-                    print("Data agendada:{}".format(eventos))
+                    print(f'Data agendada:{eventos}')
                     # indexação para acessar o item desejado na lista
                     opcao = int(input("Escolha a data:"))
                     index_desejado = str(eventos_id[opcao])
                     index_texto = index_desejado[5:31]
                     data_desejada = str(eventos[opcao])
                     data_texto = data_desejada[5:15]
-                    print(data_texto)
 
                     event = service.events().get(calendarId='mayconhenrique360@gmail.com', eventId=index_texto).execute()
                     # Corpo do novo evento(transformando numa data disponivel)
                         
                     try:
                         service.events().delete(calendarId=calendar_id, eventId=index_texto).execute()
-                        
                         print("Evento excluído com sucesso!")
                     except Exception as e:
                         print(f"Erro ao excluir o evento: {e}")
@@ -89,8 +87,8 @@ class excluiragendamento:
                     print("Opção indisponível") 
 
             event = {
-                        'summary': 'Disponivel',
-                        'description': 'disponivel',
+                        'summary': f'Data Disponível,{codigo_imovel}',
+                        'description': f'disponivel,{codigo_imovel}',
                         'start': {
                             'date': data_texto,
                             'timeZone': 'America/Sao_Paulo',

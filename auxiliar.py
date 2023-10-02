@@ -2,27 +2,54 @@ import pandas as pd
 from importacoes import *
 import requests
 
-def enviarEmail(data, numero):
+def enviarEmail(data, numero, linkImovel):
     email = 'itaimoveis7@gmail.com'
     senha = 'qrcswpxbuienlyze'
 
+    msg= EmailMessage()
+    msg['Subject'] = 'Agendamento feito'
+    msg['From'] = 'itaimoveis7@gmail.com'
+    msg['To'] = 'itaimoveis7@gmail.com'
+    mensagem_html = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+                width: 100%;
+                height: 100%;
+            }}
+            .container {{
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                width: 60%;
+                height: 60%;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Agendamento feito</h1>
+            <p>Olá, Gostaria de compartilhar uma ótima notícia! Um novo horário foi agendado com sucesso através do nosso robô de WhatsApp. Abaixo estão os detalhes do agendamento:</p>
+            <ul>
+                <li>Data e Horário: {data}</li>
+                <li>Contato do Cliente: {numero}</li>
+                <li>Link do imóvel: {linkImovel}</li>
+            </ul>
+            <p>Atenciosamente,<br>Robô Ita Imóveis</p>
+        </div>
+    </body>
+    </html>
+    """
 
-    msg0= EmailMessage()
-    msg0['Subject'] = 'Agendamento feito'
-    msg0['From'] = 'itaimoveis7@gmail.com'
-    msg0['To'] = 'itaimoveis7@gmail.com'
-    mensagem = f"""
-                Olá, Gostaria de compartilhar uma ótima notícia! Um novo horário foi agendado com sucesso através do nosso robô de WhatsApp. Abaixo estão os detalhes do agendamento:
-                Data e Horário: {data}
-                Contato do Cliente: {numero}
-                
-                Atenciosamente,
-                Robô Ita Imóveis
-                """
-    msg0.set_content(mensagem)
+    msg.add_alternative(mensagem_html, subtype='html')
+
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
         smtp.login(email, senha)
-        smtp.send_message(msg0)
+        smtp.send_message(msg)
 
     # Adicionar marcador ao e-mail usando IMAP
     with imaplib.IMAP4_SSL('imap.gmail.com') as imap:
@@ -47,15 +74,21 @@ def tratarDatas(datas):
 def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=False):
     match processo:
         case 1:
+
             print("Entrei no um")
             atualizarPlanilha(processo=2, index=index)
+            inserirPlanilha(linkImovel=True, index=index)
             gerenciarProcesso(processo=2, numero=numero, mensagem=mensagem, index=index)
+
         case 2:
+
             print("Entrei no dois")
             if str(mensagem) == "1":
                 atualizarPlanilha(processo=3, index=index)
+                inserirPlanilha(linkImovel=True, index=index)
                 gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
             else:
+                inserirPlanilha(linkImovel=True, index=index)
                 atualizarPlanilha(processo=7, index=index)
 
         case 3:
@@ -84,11 +117,12 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
             dataEmail = f"{(datas[int(mensagem)][1])[8:10]}/{(datas[int(mensagem)][1])[5:7]}/{(datas[int(mensagem)][1])[0:4]} às {(datas[int(mensagem)][1])[11:16]}"
             print(dataEmail)
-            data = str((datas[int(mensagem)][1])[0:16])
+            data = f"{str((datas[int(mensagem)][1])[0:9])} {str((datas[int(mensagem)][1])[11:15])}"
             inserirPlanilha(data=data, index=index)
             objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True, codigo_imovel=codImovel)
             enviarMensagem(mensagem="Data confirmada!\nAtendimento encerrado!", numero=numero)
-            enviarEmail(dataEmail, numero)
+            linkImovel = pegarDados(linkImovel=True, index=index)
+            enviarEmail(dataEmail, numero, linkImovel)
             atualizarPlanilha(processo=5, index=index)
 
             
@@ -130,17 +164,15 @@ def atualizarPlanilha(processo, index):
     contatos_processo.at[index, "Processo"] = processo
     contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
-def inserirPlanilha(data=None, index=None, quantidade=None, confirmado=None, codImovel=None):
+def inserirPlanilha(data=None, index=None, quantidade=None, confirmado=None, codImovel=None, linkImovel=None):
 
     print("INSERIR PLANILHA")
     if data != None:
-        print("INSERIR DATA")
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         contatos_processo.at[index, "Data"] = data
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
     if quantidade != None:
-        print("INSERIR QUANTIDADE")
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         contatos_processo.at[index, "Quantidade"] = quantidade
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
@@ -155,8 +187,13 @@ def inserirPlanilha(data=None, index=None, quantidade=None, confirmado=None, cod
         contatos_processo.at[index, "codImovel"] = codImovel
         contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
+    if linkImovel != None:
+        contatos_processo = pd.read_excel("contatos_processo.xlsx")
+        contatos_processo.at[index, "linkImovel"] = linkImovel
+        contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
-def pegarDados(data=None, index=None, quantidade=None, confirmado=None, codImovel=None):
+
+def pegarDados(data=None, index=None, quantidade=None, confirmado=None, codImovel=None, linkImovel=None):
     if data != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         return contatos_processo.at[index, "Data"]
@@ -172,6 +209,10 @@ def pegarDados(data=None, index=None, quantidade=None, confirmado=None, codImove
     if codImovel != None:
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
         return contatos_processo.at[index, "codImovel"]
+    
+    if linkImovel != None:
+        contatos_processo = pd.read_excel("contatos_processo.xlsx")
+        return contatos_processo.at[index, "linkImovel"]
         
 
 
@@ -187,7 +228,8 @@ def integrarPlanilhas():
                 'Data': "Não",
                 'Confirmado': "Não",
                 'Quantidade': "0",
-                'codImovel': "Não"
+                'codImovel': "Não",
+                'linkImovel': "Não"
             }
 
         dadosArray.append(dados)
@@ -215,7 +257,8 @@ def integrarPlanilhas():
                 'Data': "Não",
                 'Confirmado': "Não",
                 'Quantidade': "0",
-                'codImovel': contatos_checados['Código do imóvel'][index]
+                'codImovel': contatos_checados['Código do imóvel'][index],
+                'linkImovel': contatos_checados['linkImovel'][index]
             }
 
             dadosArray.append(dados)
