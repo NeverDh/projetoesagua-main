@@ -1,7 +1,7 @@
 from importacoes import *
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-173eb7c207/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-c4e9ef38da/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -9,7 +9,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "e8684a636db3f121067d9de5aa06ed80"
+        "Authorization": "cb4fa9d33040f1a4403892b3301604f1"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -54,13 +54,17 @@ class planilhauto:
 
         for numero in planilha_contatos:
             numeros_exportados.append(numero)
-
+        dados = []
         for index, numero in enumerate(planilha_contatos):
-            if numero in numero_checados and ids[index] in codigo_checados:
+            
+            if numero in numero_checados:
                 print("Numero {} que solicitou agendamento no imovel {} já foi notificado".format(numero, ids[index]))
             else:
-                mensagem = f"Olá, tudo bem? verificamos que você buscou um imóvel no nosso ZAP imóveis.\nImóvel: {links[index]}\nDeseja realizar uma visita?\n1 - Sim\n2 - Não"
-                enviarMensagem(mensagem=mensagem, numero=str(numero))
+                if numero not in dados:
+                    print(numero, dados)
+                    dados.append(numero)
+                    mensagem = f"Olá, tudo bem? verificamos que você buscou um imóvel no nosso ZAP imóveis.\nDeseja realizar uma visita?\n1 - Sim\n2 - Não"
+                    enviarMensagem(mensagem=mensagem, numero=str(numero))
                 planilha_checados.loc[indice_planilha_contatos, 'Telefone'] = numero
                 indice_planilha_contatos += 1
                 planilha_checados.loc[indice_planilha_codigo, 'Código do imóvel'] = str(ids[index])

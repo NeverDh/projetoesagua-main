@@ -2,6 +2,40 @@ import pandas as pd
 from importacoes import *
 import requests
 
+# def excluirProcesso(imovel, numero):
+#     contatos_processo = pd.read_excel("contatos_processo.xlsx")
+#     for index, contato in enumerate(contatos_processo["Telefone"]):
+#         if str(numero) == str(contato["codImovel"]) and str(imovel) != str(contato["codImovel"]):
+#             planilha = planilha.drop(index)
+#             planilha.to_excel('contatos_processo.xlsx', index=False)
+
+# def contarImoveis(numero):
+#     array = []
+#     contatos = pd.read_excel("contatos.xlsx")
+#     for index, contato in enumerate(contatos["Telefone"]):
+#         if str(contato) == numero:
+#             dados = {}
+#             dados["Código do imóvel"] = contatos["Código do imóvel"][index]
+#             link = str(contatos["link"][index]).split(",")
+#             dados["link"] = link[1]
+#             dados["index"] = index
+#             array.append(dados)
+#     return array
+
+# def pegarIndex(numero, indexImovel):
+#     imoveis = []
+#     contatos_processo = pd.read_excel("contatos_processo.xlsx")
+#     for index, _ in enumerate(contatos_processo["Telefone"]):
+#         dados = {}
+#         if str(contatos_processo["Telefone"][index]) == str(numero):
+#             dados["index"] = index
+#             dados["imovel"] = contatos_processo["codImovel"][index]
+#             imoveis.append(dados)
+#     for _ in imoveis[int(indexImovel)]:
+#         for indexThird, _ in enumerate(contatos_processo["Telefone"]):
+#             if str(imoveis[int(indexImovel)]["imovel"]) == str(contatos_processo["codImovel"][indexThird]) and str(numero == str(contatos_processo["Telefone"][indexThird])):
+#                 return indexThird
+
 def enviarEmail(data, numero, linkImovel):
     email = 'itaimoveis7@gmail.com'
     senha = 'qrcswpxbuienlyze'
@@ -77,24 +111,30 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
 
             print("Entrei no um")
             atualizarPlanilha(processo=2, index=index)
-            inserirPlanilha(linkImovel=True, index=index)
             gerenciarProcesso(processo=2, numero=numero, mensagem=mensagem, index=index)
 
         case 2:
 
             print("Entrei no dois")
             if str(mensagem) == "1":
-                atualizarPlanilha(processo=3, index=index)
-                inserirPlanilha(linkImovel=True, index=index)
-                gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
+                imoveis = contarImoveis(numero)
+                if len(imoveis) == 1:
+                    atualizarPlanilha(processo=3, index=index)
+                    inserirPlanilha(linkImovel=True, index=index)
+                else:
+                    enviarMensagem(mensagem="Pra qual imóvel você deseja agendar?\n", numero=numero)
+                    for imovel in imoveis:
+                        mensagemImovel = f"{imovel["link"]}\n\n{imovel["index"]} - {imovel["Código do imóvel"]}\n"
+                        enviarMensagem(mensagem=mensagemImovel, numero=numero)
+                        atualizarPlanilha(processo=3, index=index)
             else:
-                inserirPlanilha(linkImovel=True, index=index)
                 atualizarPlanilha(processo=7, index=index)
 
         case 3:
 
             print("Entrei no três")
-            codImovel = pegarDados(codImovel=True, index=index)
+            indexImovel = pegarIndex(numero, mensagem)
+            codImovel = pegarDados(codImovel=True, index=indexImovel)
             objeto_retorna_data = RetornarData()
             datas = objeto_retorna_data.retornar_datas(codigo_imovel=codImovel)
             tamanhoData = len(datas)
@@ -103,6 +143,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             mensagemWP = f"Escolha uma das datas abaixo!\nEscolha o número em negrito para selecionar a data\n\n"
             mensagemWP += datasWP
             enviarMensagem(mensagem=mensagemWP, numero=numero)
+            excluirProcesso(codImovel, numero)
             atualizarPlanilha(processo=4, index=index)
 
         case 4:
@@ -137,7 +178,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-173eb7c207/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-c4e9ef38da/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -145,7 +186,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "e8684a636db3f121067d9de5aa06ed80"
+        "Authorization": "cb4fa9d33040f1a4403892b3301604f1"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -258,7 +299,7 @@ def integrarPlanilhas():
                 'Confirmado': "Não",
                 'Quantidade': "0",
                 'codImovel': contatos_checados['Código do imóvel'][index],
-                'linkImovel': contatos_checados['linkImovel'][index]
+                'linkImovel': contatos_checados['link'][index]
             }
 
             dadosArray.append(dados)

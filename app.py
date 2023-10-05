@@ -53,7 +53,7 @@ def index():
     return "ROBO EM FUNCIONAMENTO"
 
 if __name__ == "__main__":
-    y = threading.Thread(target=iniciarServer)
+    y = threading.Thread(target=integrarPlanilhas)
     y.start()
-    integrarPlanilhas()
+    iniciarServer()
     

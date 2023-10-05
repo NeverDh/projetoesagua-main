@@ -1,14 +1,18 @@
-from importacoes import *
+import pandas as pd
+def contarImoveis(numero):
+    array = []
+    contatos = pd.read_excel("contatos.xlsx")
+    for index, contato in enumerate(contatos["Telefone"]):
+        if str(contato) == numero:
+            dados = {}
+            dados["Código do imóvel"] = contatos["Código do imóvel"][index]
+            dados["link"] = contatos["link"][index]
+            dados["index"] = index
+            array.append(dados)
+    return array
 
-# def tratarDatas(datas):
-#     datasFormatadas = ""
-#     for data in datas:
-#         dataFormatada = f"*{data[0]}* - {data[1][8:10]}/{data[1][5:7]}/{data[1][0:4]} às {data[1][11:16]}\n"
-#         datasFormatadas += dataFormatada
-#     return datasFormatadas
+imoveis = contarImoveis("968497739")
 
-# objeto_retorna_data = RetornarData()
-# datas = objeto_retorna_data.retornar_datas()
-
-# print(tratarDatas(datas))
-
+for indexImovel, imovel in enumerate (imoveis):
+    mensagemImovel = f"{imovel["Código do imóvel"]} - {imovel}\n"
+    print(mensagemImovel)
