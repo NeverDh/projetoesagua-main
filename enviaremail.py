@@ -10,7 +10,7 @@ class automatizar_email:
             # Conectar ao servidor IMAP
             mail = imaplib.IMAP4_SSL(IMAP_SERVER)
             mail.login(USERNAME, PASSWORD)
-            mail.select('inbox')
+            mail.select('CanalPro')
             status, email_ids = mail.search(None, '1')
             
             # Verificando se encontrou algum e-mail

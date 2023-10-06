@@ -116,7 +116,7 @@ def enviarEmail(data, numero, linkImovel):
     # Adicionar marcador ao e-mail usando IMAP
     with imaplib.IMAP4_SSL('imap.gmail.com') as imap:
         imap.login(email, senha)
-        imap.select('inbox')
+        imap.select('CanalPro')
         
         # Procurar pelo e-mail enviado recentemente (pode ser necessário ajustar isso)
         status, email_ids = imap.search(None, 'FROM', email)
@@ -152,15 +152,13 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 else:
                     enviarMensagem(mensagem="Pra qual imóvel você deseja agendar?\n", numero=numero)
                     for imovel in imoveis:
-                        mensagemImovel = f"{imovel["link"]}\n\n{imovel["index"]} - {imovel["Código do imóvel"]}\n"
+                        mensagemImovel = f"{imovel['link']}\n\n{imovel['index']} - {imovel['Código do imóvel']}\n"
                         enviarMensagem(mensagem=mensagemImovel, numero=numero)
                         atualizarPlanilha(processo=3, index=index)
             else:
                 indexUnico = excluirProcessoUnico(numero)
-                print(indexUnico)
-                print(index)
-                atualizarPlanilha(processo=6, index=index if indexUnico == False else indexUnico)
-                gerenciarProcesso(processo=6, numero=numero, index=index if indexUnico == False else indexUnico, mensagem=mensagem)
+                atualizarPlanilha(processo=7, index=index if indexUnico == False else indexUnico)
+                gerenciarProcesso(processo=7, numero=numero, index=index if indexUnico == False else indexUnico, mensagem=mensagem)
 
         case 3:
 
@@ -195,26 +193,53 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True, codigo_imovel=codImovel)
             enviarMensagem(mensagem="Data confirmada!\nAtendimento encerrado!", numero=numero)
             linkImovel = pegarDados(linkImovel=True, index=index)
-            # enviarEmail(dataEmail, numero, linkImovel)
+            enviarEmail(dataEmail, numero, linkImovel)
             atualizarPlanilha(processo=5, index=index)
 
         case 5:
-            None
+
+            codImovel = pegarDados(codImovel=True, index=index)
+            if str(mensagem) == "1":
+                inserirPlanilha(confirmado=True, index=index)
+                enviarMensagem(mensagem=f'O contato {numero} confirmou a presença no imóvel: {codImovel}', numero=numero)
+            elif str(mensagem) == "2":
+                inserirPlanilha(confirmado=False, index=index)
+                enviarMensagem(mensagem=f'Deseja remarcar a visitação?\n1 - Sim\n2 - Não', numero=numero)
+                atualizarPlanilha(processo=6, index=index)
+
         case 6:
-            enviarMensagem(mensagem="Deseja deixar uma mensagem para o suporte?\n1 - Sim\n2 - Não", numero=numero)
-            atualizarPlanilha(processo=7, index=index)
+
+            codImovel = pegarDados(codImovel=True, index=index)
+            if str(mensagem) == "1":
+                inserirPlanilha(confirmado=True, index=index)
+                enviarMensagem(mensagem=f'O contato {numero} reagendou a presença no imóvel: {codImovel}', numero=numero)
+                objeto_excluir_data = excluiragendamento()
+                objeto_excluir_data.removeragendamento(numero=numero, codImovel=codImovel)
+                atualizarPlanilha(processo=3, index=index)
+                gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
+            elif str(mensagem) == "2":
+                inserirPlanilha(confirmado=False, index=index)
+                enviarMensagem(mensagem=f'O contato {numero} cancelou a presença no imóvel: {codImovel}', numero=numero)
+                atualizarPlanilha(processo=9, index=index)
+                
         case 7:
+
+            enviarMensagem(mensagem="Deseja deixar uma mensagem para o suporte?\n1 - Sim\n2 - Não", numero=numero)
+            atualizarPlanilha(processo=8, index=index)
+            
+        case 8:
+
             if str(mensagem) == "1":
                 inserirPlanilha(suporte=True, index=index)
             else:
                 enviarMensagem(mensagem="Obrigado pelo contato! ;)", numero=numero)
-            atualizarPlanilha(processo=8, index=index)
+            atualizarPlanilha(processo=9, index=index)
+
+        case 9:
             
-        case 8:
             x = pegarDados(suporte=True, index=index)
             if x == True:
                 encaminharMensagem(mensagem)
-            
             
 
 def enviarMensagem(mensagem, numero):
