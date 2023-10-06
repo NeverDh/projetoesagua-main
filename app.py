@@ -16,17 +16,39 @@ def enviarNotificacao():
 
     doisDias = now + timedelta(days=2)
     umDia = now + timedelta(days=1)
-    seisHoras = now + timedelta(hours=6)
+    umaHora = now + timedelta(hours=1)
     meiaHora = now + timedelta(minutes=30)
     contatos_processo = pd.read_excel("contatos_processo.xlsx")
 
-    for _, data in enumerate(contatos_processo["Data"]):
+    for index, data in enumerate(contatos_processo["Data"]):
         notificar = False
+        processoNotificacao = 0
+        codMovel = contatos_processo["codImovel"][index]
         data = datetime.strptime(data, "%Y-%m-%d %H:%M")
-        if doisDias >= data or umDia >= data or seisHoras >= data or meiaHora >= data:
+        if doisDias >= data or umDia >= data or umaHora >= data or meiaHora >= data:
             notificar = True
+
+        if doisDias >= data:
+            processoNotificacao = 1
+        if umDia >= data:
+            processoNotificacao = 2
+        if umaHora >= data:
+            processoNotificacao = 3
+        if meiaHora >= data:
+            processoNotificacao = 4
+
+        contatos_processo = pd.read_excel("contatos_processo.xlsx")
         if notificar == True:
-            auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {None} no dia {data}?\n1 - Sim\n2 - Não', "?")
+            match processoNotificacao:
+                case 1:
+                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', "?")
+                case 2:
+                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', "?")
+                case 3:
+                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', "?")
+                case 4:
+                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', "?")
+
 
 def exportarContatos():
     objeto_exportar = exportar()
