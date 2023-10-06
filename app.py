@@ -8,6 +8,9 @@ app = Flask(__name__)
 
 #DESENVOLVENDO WEBHOOK#
 
+def enviarNotificacao():
+    None
+
 def exportarContatos():
     objeto_exportar = exportar()
     objeto_exportar.exportacao_contatos()
@@ -16,10 +19,6 @@ def integrarPlanilhas():
     objeto_automacao_planilha = planilhauto()
     objeto_automacao_planilha.automacao_planilha()
     auxiliar.integrarPlanilhas()
-
-def enviarNotificacao():
-    None
-
     
 def verificarProcessos():
     schedule.every(60).minutes.do(exportarContatos)
@@ -39,10 +38,12 @@ def chat():
         if verifica["Type"] == "receveid_message":
             numero = (verifica["Body"]["Info"]["RemoteJid"])[4:13]
             processoIndex = auxiliar.verificarProcesso(numero)
-            print(processoIndex)
             if processoIndex != None:
                 thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
+                thread.daemon = True
                 thread.start()
+            else:
+                return "Não interessa"
     except Exception as e:
         return "Não interessa"
     return "Concluído"

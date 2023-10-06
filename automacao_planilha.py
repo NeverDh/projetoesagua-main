@@ -1,7 +1,7 @@
 from importacoes import *
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-c4e9ef38da/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-37478fb898/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -9,8 +9,9 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "cb4fa9d33040f1a4403892b3301604f1"
+        "Authorization": "e77e1de9dc0dbc6ea14ae1b614ad076b"
     }
+
 
     response = requests.post(url, json=payload, headers=headers)
 

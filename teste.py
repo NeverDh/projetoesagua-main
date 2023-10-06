@@ -1,18 +1,17 @@
 import pandas as pd
-def contarImoveis(numero):
-    array = []
-    contatos = pd.read_excel("contatos.xlsx")
-    for index, contato in enumerate(contatos["Telefone"]):
-        if str(contato) == numero:
-            dados = {}
-            dados["Código do imóvel"] = contatos["Código do imóvel"][index]
-            dados["link"] = contatos["link"][index]
-            dados["index"] = index
-            array.append(dados)
-    return array
+def excluirProcessoUnico(numero):
+    contatos_processo = pd.read_excel("contatos_processo.xlsx")
+    dados = []
+    for index, _ in enumerate(contatos_processo["Telefone"]):
+        if str(numero) == str(contatos_processo["Telefone"][index]):
+            dados.append(index)
+    if len(dados) > 1:
+        for _, indice in enumerate(index):
+            if indice == 0:
+                continue
+            else:
+                contatos_processo = contatos_processo.drop(index)
+                contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
-imoveis = contarImoveis("968497739")
 
-for indexImovel, imovel in enumerate (imoveis):
-    mensagemImovel = f"{imovel["Código do imóvel"]} - {imovel}\n"
-    print(mensagemImovel)
+excluirProcessoUnico("967208668")
