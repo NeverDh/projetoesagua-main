@@ -37,7 +37,6 @@ def enviarNotificacao():
         if meiaHora >= data:
             processoNotificacao = 4
 
-        contatos_processo = pd.read_excel("contatos_processo.xlsx")
         if notificar == True:
             match processoNotificacao:
                 case 1:
@@ -60,11 +59,9 @@ def integrarPlanilhas():
     auxiliar.integrarPlanilhas()
     
 def verificarProcessos():
-    schedule.every(60).minutes.do(exportarContatos)
-    schedule.every(70).minutes.do(integrarPlanilhas)
     while True:
         schedule.run_pending()
-        time.sleep(1)
+        time.sleep(300)
 
 def iniciarServer():
     app.run(port=5000)
@@ -93,7 +90,10 @@ def index():
     return "ROBO EM FUNCIONAMENTO"
 
 if __name__ == "__main__":
-    y = threading.Thread(target=integrarPlanilhas)
+    schedule.every(60).minutes.do(exportarContatos)
+    schedule.every(70).minutes.do(integrarPlanilhas)
+    schedule.every(30).minutes.do(enviarNotificacao)
+    y = threading.Thread(target=verificarProcessos)
     y.start()
     iniciarServer()
     
