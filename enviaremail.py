@@ -35,7 +35,7 @@ class automatizar_email:
                     if first_valid_url:
                         break
                 link = (url)
-                nome_do_arquivo = "planilha.xlsx"  # Nome que você deseja dar ao arquivo local
+                nome_do_arquivo = "contatos.xlsx"  # Nome que você deseja dar ao arquivo local
                 print(url)
                 response = requests.get(link)
                 if response.status_code == 200:

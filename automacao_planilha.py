@@ -1,7 +1,7 @@
 from importacoes import *
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-37478fb898/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-c534363c98/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -9,7 +9,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "e77e1de9dc0dbc6ea14ae1b614ad076b"
+        "Authorization": "ff3371e4831eda70b248f2d8e008b713"
     }
 
 
@@ -56,6 +56,9 @@ class planilhauto:
         for numero in planilha_contatos:
             numeros_exportados.append(numero)
         dados = []
+        for numeroChecados in planilha_checados['Telefone']:
+            dados.append(numeroChecados)
+            
         for index, numero in enumerate(planilha_contatos):
             
             if numero in numero_checados:

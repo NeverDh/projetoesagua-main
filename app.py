@@ -64,23 +64,21 @@ def verificarProcessos():
         time.sleep(300)
 
 def iniciarServer():
-    app.run(port=5000)
+    app.run(port=80)
 
+
+lock = threading.Lock()
 
 @app.route("/chat", methods=['POST'])
 def chat():
     try:
         verifica = request.json
-        if verifica["Type"] == "receveid_message":
-            numero = (verifica["Body"]["Info"]["RemoteJid"])[4:13]
-            processoIndex = auxiliar.verificarProcesso(numero)
-            if processoIndex != None:
-                thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
-                thread.daemon = True
-                thread.start()
-            else:
-                return "Não interessa"
+        with lock:
+            thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
+            thread.daemon = True
+            thread.start()
     except Exception as e:
+        print(e)
         return "Não interessa"
     return "Concluído"
 
@@ -90,10 +88,12 @@ def index():
     return "ROBO EM FUNCIONAMENTO"
 
 if __name__ == "__main__":
-    schedule.every(60).minutes.do(exportarContatos)
-    schedule.every(70).minutes.do(integrarPlanilhas)
-    schedule.every(30).minutes.do(enviarNotificacao)
-    y = threading.Thread(target=verificarProcessos)
-    y.start()
+    # schedule.every(60).minutes.do(exportarContatos)
+    # schedule.every(380).seconds.do(automatizar_email)
+    # schedule.every(70).minutes.do(integrarPlanilhas)
+    # schedule.every(30).minutes.do(enviarNotificacao)
+    integrarPlanilhas()
+    # y = threading.Thread(target=verificarProcessos)
+    # y.start()
     iniciarServer()
     

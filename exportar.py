@@ -17,22 +17,24 @@ class exportar:
         IMAP_SERVER = 'imap.gmail.com'
         USERNAME = 'itaimoveis7@gmail.com'
         PASSWORD = 'pjmupogavhxlwmyk'
+        MARCADOR = 'CanalPro'
         # Conectar ao servidor IMAP
+        # Conectar-se ao servidor IMAP do seu provedor de email usando SSL
         mail = imaplib.IMAP4_SSL(IMAP_SERVER)
         mail.login(USERNAME, PASSWORD)
-        mail.select('inbox')
-        status, email_ids = mail.search(None, '1')
-        result, data = mail.uid('search', None, 'ALL')
-        if result == 'OK':
-            email_ids = data[0].split()
-            for email_id in email_ids:
-                # Marcar cada email para exclusão
-                mail.uid('store', email_id, '+FLAGS', '(\Deleted)')
-
-            # Excluir os emails marcados para exclusão
-            mail.expunge()
-            print("Todos os emails foram excluídos com sucesso.")
+        import imapclient
+        with imapclient.IMAPClient(IMAP_SERVER) as client:
+            client.login(USERNAME, PASSWORD)
     
+            # Selecionar o marcador (label) desejado
+            client.select_folder(MARCADOR)
+        
+            # Buscar os IDs de todos os emails no marcador
+            email_ids = client.search()
+        
+            if email_ids:
+                # Marcar todos os emails no marcador como excluídos
+                client.delete_messages(email_ids)
 
 
         ##LOGANDO NO SITE E EXPORTANDO DADOS

@@ -13,7 +13,7 @@ class RetornarData:
         service = build('calendar', 'v3', credentials=credentials)
 
         # Defina o ID da agenda
-        calendar_id = 'mayconhenrique360@gmail.com'
+        calendar_id = 'itaimoveis7@gmail.com'
         now = datetime.datetime.utcnow()
         start_date = now.date()  # Data de hoje
         end_date = start_date + datetime.timedelta(days=60)  # Data daqui a um ano
@@ -74,7 +74,7 @@ class RetornarData:
                 data_desejada = str(eventos[opcao])
                 data_texto = data_desejada[5:15]
 
-                event = service.events().get(calendarId='mayconhenrique360@gmail.com', eventId=index_texto).execute()
+                event = service.events().get(calendarId='itaimoveis7@gmail.com', eventId=index_texto).execute()
                 # Corpo do novo evento(transformando numa data indisponivel)
                 event = {
                     'summary': f'Visita agendada, {codigo_imovel}',
@@ -91,7 +91,7 @@ class RetornarData:
                         }
                 # atualizando a data escolhida
                 try:
-                    service.events().update(calendarId='mayconhenrique360@gmail.com', eventId=index_texto, body=event).execute()
+                    service.events().update(calendarId='itaimoveis7@gmail.com', eventId=index_texto, body=event).execute()
                 except Exception as e:
                     print(f'Erro ao criar o evento: {e}')
                 
