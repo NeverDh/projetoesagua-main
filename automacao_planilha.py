@@ -1,7 +1,7 @@
 from importacoes import *
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-c534363c98/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-f0e43fefa1/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -9,7 +9,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "ff3371e4831eda70b248f2d8e008b713"
+        "Authorization": "e47f17a486479f9c9295ab16c0bef987"
     }
 
 
@@ -65,7 +65,6 @@ class planilhauto:
                 print("Numero {} que solicitou agendamento no imovel {} já foi notificado".format(numero, ids[index]))
             else:
                 if numero not in dados:
-                    print(numero, dados)
                     dados.append(numero)
                     mensagem = f"Olá, tudo bem? verificamos que você buscou um imóvel no nosso ZAP imóveis.\nDeseja realizar uma visita?\n1 - Sim\n2 - Não"
                     enviarMensagem(mensagem=mensagem, numero=str(numero))

@@ -73,12 +73,16 @@ lock = threading.Lock()
 def chat():
     try:
         verifica = request.json
-        with lock:
-            thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
-            thread.daemon = True
-            thread.start()
+        if verifica["Type"] == "receveid_message":
+            numero = (verifica["Body"]["Info"]["RemoteJid"])[2:13]
+            print(numero)
+            processoIndex = auxiliar.verificarProcesso(numero)
+            if processoIndex != None:
+                with lock:
+                    thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
+                    thread.daemon = True
+                    thread.start()
     except Exception as e:
-        print(e)
         return "Não interessa"
     return "Concluído"
 

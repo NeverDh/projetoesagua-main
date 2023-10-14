@@ -269,7 +269,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
 
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-c534363c98/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-f0e43fefa1/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -277,7 +277,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "ff3371e4831eda70b248f2d8e008b713"
+        "Authorization": "e47f17a486479f9c9295ab16c0bef987"
     }
 
     response = requests.post(url, json=payload, headers=headers)
