@@ -8,7 +8,7 @@ def encaminharMensagem(mensagem):
 def verificarProcesso(numero):
     contatos_processo = pd.read_excel("contatos_processo.xlsx")
     for index, _ in enumerate(contatos_processo["Telefone"]):
-        if str(contatos_processo["Telefone"][index]) == numero:
+        if str(contatos_processo["Telefone"][index]) == str(numero):
             return contatos_processo["Processo"][index], index
 
 def excluirProcessoUnico(numero):
@@ -135,137 +135,144 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
 
         case 2:
 
-            # try:
-                print("Entrei no dois")
-                if str(mensagem) == "1":
-                    imoveis = contarImoveis(numero)
-                    if len(imoveis) == 1:
-                        gerenciarProcesso(processo=3, numero=numero, index=index, mensagem=mensagem, multiplos=False)
-                    else:
-                        enviarMensagem(mensagem="Pra qual imóvel você deseja agendar?\n", numero=numero)
-                        for indexImov, imovel in enumerate(imoveis):
-                            mensagemImovel = f"{imovel['link']}\n\n{indexImov} - {imovel['Código do imóvel']}\n"
-                            enviarMensagem(mensagem=mensagemImovel, numero=numero)
-                            atualizarPlanilha(processo=3, index=index)
-                elif str(mensagem) == "2":
-                    indexUnico = excluirProcessoUnico(numero)
-                    atualizarPlanilha(processo=7, index=index if indexUnico == False else indexUnico)
-                    gerenciarProcesso(processo=7, numero=numero, index=index if indexUnico == False else indexUnico, mensagem=mensagem)
+            print("Entrei no dois")
+            if str(mensagem) == "1":
+                imoveis = contarImoveis(numero)
+                if len(imoveis) == 1:
+                    gerenciarProcesso(processo=3, numero=numero, index=index, mensagem=mensagem, multiplos=False)
                 else:
-                    enviarMensagem(mensagem="Opção inválida! Por favor escolha uma das opções acima.\n", numero=numero)
-            # except Exception as e:
-                # None
+                    enviarMensagem(mensagem="Pra qual imóvel você deseja agendar?\nAguarde trazendo os imóveis...\n", numero=numero)
+                    for indexImov, imovel in enumerate(imoveis):
+                        mensagemImovel = f"{imovel['link']}\n\n{indexImov} - {imovel['Código do imóvel']}\n"
+                        if indexImov + 1 < len(imoveis):
+                            mensagemImovel += f"Aguarde trazendo os imóveis...\n"
+                        else:
+                            mensagemImovel += f"Todos os imóveis disponíveis acima!\n"
+                        enviarMensagem(mensagem=mensagemImovel, numero=numero)
+                        atualizarPlanilha(processo=3, index=index)
+            elif str(mensagem) == "2":
+                indexUnico = excluirProcessoUnico(numero)
+                atualizarPlanilha(processo=7, index=index if indexUnico == False else indexUnico)
+                gerenciarProcesso(processo=7, numero=numero, index=index if indexUnico == False else indexUnico, mensagem=mensagem)
+            else:
+                enviarMensagem(mensagem="Opção inválida! Por favor escolha uma das opções acima.\n", numero=numero)
 
         case 3:
 
-            # try:
-                print("Entrei no três")
-                print(index)
-                if multiplos == True:
+            print("Entrei no três")
+            if multiplos == True:
+                try:
                     indexImovel = pegarIndex(numero, mensagem)
-                codImovel = pegarDados(codImovel=True, index=indexImovel if multiplos == True else index)
+                except Exception as e:
+                    print(e)
+                    print("ERRO CONTROLADO")
+                    enviarMensagem(mensagem="Opção inválida! Por favor escolha uma das opções acima.\n", numero=numero)
+                    return None
+            codImovel = pegarDados(codImovel=True, index=indexImovel if multiplos == True else index)
+            try:
                 objeto_retorna_data = RetornarData()
                 datas = objeto_retorna_data.retornar_datas(codigo_imovel=codImovel)
                 tamanhoData = len(datas)
-                datasWP = tratarDatas(datas)
-                mensagemWP = f"Escolha uma das datas abaixo!\nEscolha o número em negrito para selecionar a data\n\n"
-                mensagemWP += datasWP
-                enviarMensagem(mensagem=mensagemWP, numero=numero)
-                excluirProcesso(codImovel, numero)
-                inserirPlanilha(quantidade=tamanhoData, index=index)
-                atualizarPlanilha(processo=4, index=index)
-            # except IndexError as e:
-            #     gerenciarProcesso(processo=3, numero=numero, index=index, mensagem=mensagem)
+            except Exception as e:
+                print(e)
+                print("ERRO CONTROLADO")
+                enviarMensagem(mensagem=f"Sem datas disponiveis pro imóvel {codImovel}\nPor favor, tente outro dia!", numero=numero)
+                return None
+            datasWP = tratarDatas(datas)
+            mensagemWP = f"Escolha uma das datas abaixo!\nEscolha o número em negrito para selecionar a data\n\n"
+            mensagemWP += datasWP
+            enviarMensagem(mensagem=mensagemWP, numero=numero)
+            excluirProcesso(codImovel, numero)
+            inserirPlanilha(quantidade=tamanhoData, index=index)
+            atualizarPlanilha(processo=4, index=index)
 
         case 4:
-            # try:
-                print("Entrei no quatro")
-                codImovel = str(pegarDados(codImovel=True, index=index))
+
+            print("Entrei no quatro")
+            codImovel = str(pegarDados(codImovel=True, index=index))
+            try:
                 objeto_retorna_data = RetornarData()
                 datas = objeto_retorna_data.retornar_datas(codigo_imovel=codImovel)
                 quantidade = int(pegarDados(index=index, quantidade=quantidade))
                 if len(datas) != quantidade:
                     enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
                     gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
-                dataEmail = f"{(datas[int(mensagem)][1])[8:10]}/{(datas[int(mensagem)][1])[5:7]}/{(datas[int(mensagem)][1])[0:4]} às {(datas[int(mensagem)][1])[11:16]}"
-                data = f"{str((datas[int(mensagem)][1])[0:9])} {str((datas[int(mensagem)][1])[11:16])}"
-                inserirPlanilha(data=data, index=index)
+            except Exception as e:
+                print(e)
+                print("ERROR CONTROLADO")
+                enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
+                enviarMensagem(mensagem=f"Sem datas disponiveis pro imóvel {codImovel}\nPor favor, tente outro dia!", numero=numero)
+                return None
+            dataEmail = f"{(datas[int(mensagem)][1])[8:10]}/{(datas[int(mensagem)][1])[5:7]}/{(datas[int(mensagem)][1])[0:4]} às {(datas[int(mensagem)][1])[11:16]}"
+            data = f"{str((datas[int(mensagem)][1])[0:9])} {str((datas[int(mensagem)][1])[11:16])}"
+            inserirPlanilha(data=data, index=index)
+            try:
                 objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True, codigo_imovel=codImovel)
-                enviarMensagem(mensagem="Data confirmada!\nAtendimento encerrado!", numero=numero)
-                linkImovel = pegarDados(linkImovel=True, index=index)
-                enviarEmail(dataEmail, numero, linkImovel)
-                atualizarPlanilha(processo=5, index=index)
-            # except IndexError:
-                # enviarMensagem(mensagem="Opção inválida! Escolha uma das datas acima!\n", numero=numero)
-            # # except Exception as e:
-                # None
+            except Exception as e:
+                print(e)
+                print("ERRO CONTROLADO")
+                enviarMensagem(mensagem="Opção inválida! Por favor escolha uma das datas acima.\n", numero=numero)
+                return None
+            enviarMensagem(mensagem="Data confirmada!\nAtendimento encerrado!", numero=numero)
+            linkImovel = pegarDados(linkImovel=True, index=index)
+            enviarEmail(dataEmail, numero, linkImovel)
+            atualizarPlanilha(processo=5, index=index)
 
         case 5:
 
-            # try:
-                codImovel = pegarDados(codImovel=True, index=index)
-                if str(mensagem) == "1":
-                    inserirPlanilha(confirmado=True, index=index)
-                    enviarMensagem(mensagem=f'O contato {numero} confirmou a presença no imóvel: {codImovel}', numero=numero)
-                elif str(mensagem) == "2":
-                    inserirPlanilha(confirmado=False, index=index)
-                    enviarMensagem(mensagem=f'Deseja remarcar a visitação?\n1 - Sim\n2 - Não', numero=numero)
-                    atualizarPlanilha(processo=6, index=index)
-                else:
-                    enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)
-            # # except Exception as e:
-                # None
-
+            codImovel = pegarDados(codImovel=True, index=index)
+            if str(mensagem) == "1":
+                inserirPlanilha(confirmado=True, index=index)
+                enviarMensagem(mensagem=f'O contato {numero} confirmou a presença no imóvel: {codImovel}', numero=numero)
+            elif str(mensagem) == "2":
+                inserirPlanilha(confirmado=False, index=index)
+                enviarMensagem(mensagem=f'Deseja remarcar a visitação?\n1 - Sim\n2 - Não', numero=numero)
+                atualizarPlanilha(processo=6, index=index)
+            else:
+                enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)
+           
         case 6:
 
-            # try:
-                codImovel = pegarDados(codImovel=True, index=index)
-                if str(mensagem) == "1":
-                    inserirPlanilha(confirmado=True, index=index)
-                    enviarMensagem(mensagem=f'O contato {numero} reagendou a presença no imóvel: {codImovel}', numero=numero)
-                    objeto_excluir_data = excluiragendamento()
-                    objeto_excluir_data.removeragendamento(numero=numero, codImovel=codImovel)
-                    atualizarPlanilha(processo=3, index=index)
-                    gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
-                elif str(mensagem) == "2":
-                    inserirPlanilha(confirmado=False, index=index)
-                    enviarMensagem(mensagem=f'O contato {numero} cancelou a presença no imóvel: {codImovel}', numero=numero)
-                    atualizarPlanilha(processo=9, index=index)
-                else:
-                    enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)
-            # # except Exception as e:
-                # None
+   
+            codImovel = pegarDados(codImovel=True, index=index)
+            if str(mensagem) == "1":
+                inserirPlanilha(confirmado=True, index=index)
+                enviarMensagem(mensagem=f'O contato {numero} reagendou a presença no imóvel: {codImovel}', numero=numero)
+                objeto_excluir_data = excluiragendamento()
+                objeto_excluir_data.removeragendamento(numero=numero, codImovel=codImovel)
+                atualizarPlanilha(processo=3, index=index)
+                gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
+            elif str(mensagem) == "2":
+                inserirPlanilha(confirmado=False, index=index)
+                enviarMensagem(mensagem=f'O contato {numero} cancelou a presença no imóvel: {codImovel}', numero=numero)
+                atualizarPlanilha(processo=9, index=index)
+            else:
+                enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)
+
                 
         case 7:
 
-            # try:
-                enviarMensagem(mensagem="Deseja deixar uma mensagem para o suporte?\n1 - Sim\n2 - Não", numero=numero)
-                atualizarPlanilha(processo=8, index=index)
-            # # except Exception as e:
-                # None
+            enviarMensagem(mensagem="Deseja deixar uma mensagem para o suporte?\n1 - Sim\n2 - Não", numero=numero)
+            atualizarPlanilha(processo=8, index=index)
+
             
         case 8:
-
-            # try:
-                if str(mensagem) == "1":
-                    inserirPlanilha(suporte=True, index=index)
-                    atualizarPlanilha(processo=9, index=index)
-                elif str(mensagem) == "2":
-                    enviarMensagem(mensagem="Obrigado pelo contato! ;)", numero=numero)
-                    atualizarPlanilha(processo=9, index=index)
-                else:
-                    enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)
-            # # except Exception as e:
-                # None
+                
+            if str(mensagem) == "1":
+                inserirPlanilha(suporte=True, index=index)
+                atualizarPlanilha(processo=9, index=index)
+            elif str(mensagem) == "2":
+                enviarMensagem(mensagem="Obrigado pelo contato! ;)", numero=numero)
+                atualizarPlanilha(processo=9, index=index)
+            else:
+                enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)
 
         case 9:
             
-            # try:
-                x = pegarDados(suporte=True, index=index)
-                if x == True:
-                    encaminharMensagem(mensagem)
-            # # except Exception as e:
-                # None
+            x = pegarDados(suporte=True, index=index)
+            if x == True:
+                encaminharMensagem(mensagem)
+
 
 
 def enviarMensagem(mensagem, numero):
@@ -409,7 +416,7 @@ def mensagemRecebida(json):
     dados = json
     if dados["Type"] == "receveid_message":
         mensagem = dados["Body"]["Text"]
-        numero = (dados["Body"]["Info"]["RemoteJid"])[4:13]
+        numero = (dados["Body"]["Info"]["RemoteJid"])[2:13]
         processoIndex = verificarProcesso(numero)
         gerenciarProcesso(processo=processoIndex[0], mensagem=mensagem, numero=numero, index=processoIndex[1]) if processoIndex != None else None
         

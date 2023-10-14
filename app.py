@@ -75,7 +75,6 @@ def chat():
         verifica = request.json
         if verifica["Type"] == "receveid_message":
             numero = (verifica["Body"]["Info"]["RemoteJid"])[2:13]
-            print(numero)
             processoIndex = auxiliar.verificarProcesso(numero)
             if processoIndex != None:
                 with lock:
