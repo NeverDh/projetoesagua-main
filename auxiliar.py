@@ -199,7 +199,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                     gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
             except Exception as e:
                 print(e)
-                print("ERROR CONTROLADO")
+                print("ERRO CONTROLADO")
                 enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
                 enviarMensagem(mensagem=f"Sem datas disponiveis pro imóvel {codImovel}\nPor favor, tente outro dia!", numero=numero)
                 return None
