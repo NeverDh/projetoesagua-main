@@ -2,7 +2,7 @@ from importacoes import *
 
 
 class RetornarData:
-    def retornar_datas(self, enviar=False, opcao=None, pegar=None, codigo_imovel=None):
+    def retornar_datas(self, enviar=False, opcao=None, pegar=None, codigo_imovel=None, numero=None):
         SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events']
         SERVICE_ACCOUNT_FILE = 'credentials.json'
         from collections import defaultdict
@@ -78,7 +78,7 @@ class RetornarData:
                 # Corpo do novo evento(transformando numa data indisponivel)
                 event = {
                     'summary': f'Visita agendada, {codigo_imovel}',
-                    'description': 'Agendado',
+                    'description': f'Agendado,{numero},{codigo_imovel}',
                     'start': {
                         'date': data_texto,
                         'timeZone': 'America/Sao_Paulo',

@@ -117,6 +117,9 @@ def enviarEmail(data, numero, linkImovel):
         smtp.login(email, senha)
         smtp.send_message(msg)
 
+def tratarData(data):
+    dataFormatada = f"{data[8:10]}/{data[5:7]}/{data[0:4]} às {data[11:16]}\n"
+    return dataFormatada
 
 def tratarDatas(datas):
     datasFormatadas = ""
@@ -203,11 +206,17 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
                 enviarMensagem(mensagem=f"Sem datas disponiveis pro imóvel {codImovel}\nPor favor, tente outro dia!", numero=numero)
                 return None
-            dataEmail = f"{(datas[int(mensagem)][1])[8:10]}/{(datas[int(mensagem)][1])[5:7]}/{(datas[int(mensagem)][1])[0:4]} às {(datas[int(mensagem)][1])[11:16]}"
-            data = f"{str((datas[int(mensagem)][1])[0:9])} {str((datas[int(mensagem)][1])[11:16])}"
-            inserirPlanilha(data=data, index=index)
             try:
-                objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True, codigo_imovel=codImovel)
+                dataEmail = f"{(datas[int(mensagem)][1])[8:10]}/{(datas[int(mensagem)][1])[5:7]}/{(datas[int(mensagem)][1])[0:4]} às {(datas[int(mensagem)][1])[11:16]}"
+                data = f"{str((datas[int(mensagem)][1])[0:9])} {str((datas[int(mensagem)][1])[11:16])}"
+                inserirPlanilha(data=data, index=index)
+            except Exception as e:
+                print(e)
+                print("ERRO CONTROLADO")
+                enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)
+                return None
+            try:
+                objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True, codigo_imovel=codImovel, numero=numero)
             except Exception as e:
                 print(e)
                 print("ERRO CONTROLADO")
@@ -236,13 +245,15 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
    
             codImovel = pegarDados(codImovel=True, index=index)
             if str(mensagem) == "1":
+                objeto_excluir_data = excluiragendamento()
+                objeto_excluir_data.removeragendamento(numero=numero, codigo_imovel=codImovel)
                 inserirPlanilha(confirmado=True, index=index)
                 enviarMensagem(mensagem=f'O contato {numero} reagendou a presença no imóvel: {codImovel}', numero="21992193853")
-                objeto_excluir_data = excluiragendamento()
-                objeto_excluir_data.removeragendamento(numero=numero, codImovel=codImovel)
                 atualizarPlanilha(processo=3, index=index)
                 gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
             elif str(mensagem) == "2":
+                objeto_excluir_data = excluiragendamento()
+                objeto_excluir_data.removeragendamento(numero=numero, codigo_imovel=codImovel)
                 inserirPlanilha(confirmado=False, index=index)
                 enviarMensagem(mensagem=f'O contato {numero} cancelou a presença no imóvel: {codImovel}', numero="21992193853")
                 atualizarPlanilha(processo=9, index=index)
@@ -276,7 +287,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
 
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-f0e43fefa1/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-5da4a8768d/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -284,7 +295,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "e47f17a486479f9c9295ab16c0bef987"
+        "Authorization": "8031c552420b99dcaa2f561bfb0a5023"
     }
 
     response = requests.post(url, json=payload, headers=headers)

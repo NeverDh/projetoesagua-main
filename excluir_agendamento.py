@@ -12,7 +12,7 @@ class excluiragendamento:
         service = build('calendar', 'v3', credentials=credentials)
 
         # Defina o ID da agenda
-        calendar_id = 'mayconhenrique360@gmail.com'
+        calendar_id = 'itaimoveis7@gmail.com'
 
         now = datetime.datetime.utcnow()
         start_date = now.date()  # Data de hoje
@@ -61,30 +61,21 @@ class excluiragendamento:
             if not eventos:
                 print("Não há datas disponiveis")
             else:
-                escolha = int(input("Deseja excluir agendamento?\n 1- SIM\n 2- NÃO\n"))
-                if escolha == 1:
-                    print(f'Data agendada:{eventos}')
-                    # indexação para acessar o item desejado na lista
-                    opcao = int(input("Escolha a data:"))
-                    index_desejado = str(eventos_id[opcao])
-                    index_texto = index_desejado[5:31]
-                    data_desejada = str(eventos[opcao])
-                    data_texto = data_desejada[5:15]
+                # indexação para acessar o item desejado na lista
+                index_desejado = str(eventos_id[0])
+                index_texto = index_desejado[5:31]
+                data_desejada = str(eventos[0])
+                data_texto = data_desejada[5:15]
 
-                    event = service.events().get(calendarId='mayconhenrique360@gmail.com', eventId=index_texto).execute()
-                    # Corpo do novo evento(transformando numa data disponivel)
+                event = service.events().get(calendarId='itaimoveis7@gmail.com', eventId=index_texto).execute()
+                # Corpo do novo evento(transformando numa data disponivel)
+                    
+                try:
+                    service.events().delete(calendarId=calendar_id, eventId=index_texto).execute()
+                    print("Evento excluído com sucesso!")
+                except Exception as e:
+                    print(f"Erro ao excluir o evento: {e}")
                         
-                    try:
-                        service.events().delete(calendarId=calendar_id, eventId=index_texto).execute()
-                        print("Evento excluído com sucesso!")
-                    except Exception as e:
-                        print(f"Erro ao excluir o evento: {e}")
-                        
-                elif escolha == 2:
-                    print("Agradeço o retorno, conversa encerrada.")
-                    exit()
-                else: 
-                    print("Opção indisponível") 
 
             event = {
                         'summary': f'Data Disponível,{codigo_imovel}',

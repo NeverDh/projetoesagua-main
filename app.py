@@ -5,10 +5,22 @@ import auxiliar
 import schedule
 from datetime import datetime, timedelta
 import pandas as pd
+import psutil
 
 app = Flask(__name__)
 
 #DESENVOLVENDO WEBHOOK#
+
+# def arquivo_em_uso(nome_arquivo):
+#     for processo in psutil.process_iter(['pid', 'open_files']):
+#         try:
+#             arquivos_abertos = processo.info['open_files']
+#             for arquivo in arquivos_abertos:
+#                 if arquivo.path == nome_arquivo:
+#                     return True
+#         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+#             pass
+#     return False
 
 def enviarNotificacao():
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -21,10 +33,17 @@ def enviarNotificacao():
     contatos_processo = pd.read_excel("contatos_processo.xlsx")
 
     for index, data in enumerate(contatos_processo["Data"]):
+        
         notificar = False
         processoNotificacao = 0
         codMovel = contatos_processo["codImovel"][index]
-        data = datetime.strptime(data, "%Y-%m-%d %H:%M")
+        try:
+            data = datetime.strptime(data, "%Y-%m-%d %H:%M")
+        except Exception as e:
+            # print(e)
+            # print("ERRO CONTROLADO")
+            continue
+
         if doisDias >= data or umDia >= data or umaHora >= data or meiaHora >= data:
             notificar = True
 
@@ -38,15 +57,17 @@ def enviarNotificacao():
             processoNotificacao = 4
 
         if notificar == True:
+            data = auxiliar.tratarData(data.strftime("%Y-%m-%d %H:%M:%S"))
+            time.sleep(1)
             match processoNotificacao:
                 case 1:
-                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', contatos_processo["Telefone"][index])
+                    auxiliar.enviarMensagem(mensagem=f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', numero=str(contatos_processo["Telefone"][index]))
                 case 2:
-                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', contatos_processo["Telefone"][index])
+                    auxiliar.enviarMensagem(mensagem=f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', numero=str(contatos_processo["Telefone"][index]))
                 case 3:
-                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', contatos_processo["Telefone"][index])
+                    auxiliar.enviarMensagem(mensagem=f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', numero=str(contatos_processo["Telefone"][index]))
                 case 4:
-                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', contatos_processo["Telefone"][index])
+                    auxiliar.enviarMensagem(mensagem=f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', numero=str(contatos_processo["Telefone"][index]))
 
 
 def exportarContatos():
@@ -61,7 +82,7 @@ def integrarPlanilhas():
 def verificarProcessos():
     while True:
         schedule.run_pending()
-        time.sleep(300)
+        time.sleep(10)
 
 def iniciarServer():
     app.run(port=80)
@@ -94,9 +115,11 @@ if __name__ == "__main__":
     # schedule.every(60).minutes.do(exportarContatos)
     # schedule.every(380).seconds.do(automatizar_email)
     # schedule.every(70).minutes.do(integrarPlanilhas)
-    schedule.every(1).minute.do(enviarNotificacao)
-    integrarPlanilhas()
-    y = threading.Thread(target=verificarProcessos)
-    y.start()
+    # schedule.every(30).seconds.do(enviarNotificacao)
+    # with lock:
+    #     y = threading.Thread(target=verificarProcessos)
+    #     y.start()
+    # enviarNotificacao()
+    # integrarPlanilhas()
     iniciarServer()
     
