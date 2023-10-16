@@ -223,7 +223,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             codImovel = pegarDados(codImovel=True, index=index)
             if str(mensagem) == "1":
                 inserirPlanilha(confirmado=True, index=index)
-                enviarMensagem(mensagem=f'O contato {numero} confirmou a presença no imóvel: {codImovel}', numero=numero)
+                enviarMensagem(mensagem=f'O contato {numero} confirmou a presença no imóvel: {codImovel}', numero="21992193853")
             elif str(mensagem) == "2":
                 inserirPlanilha(confirmado=False, index=index)
                 enviarMensagem(mensagem=f'Deseja remarcar a visitação?\n1 - Sim\n2 - Não', numero=numero)
@@ -237,14 +237,14 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             codImovel = pegarDados(codImovel=True, index=index)
             if str(mensagem) == "1":
                 inserirPlanilha(confirmado=True, index=index)
-                enviarMensagem(mensagem=f'O contato {numero} reagendou a presença no imóvel: {codImovel}', numero=numero)
+                enviarMensagem(mensagem=f'O contato {numero} reagendou a presença no imóvel: {codImovel}', numero="21992193853")
                 objeto_excluir_data = excluiragendamento()
                 objeto_excluir_data.removeragendamento(numero=numero, codImovel=codImovel)
                 atualizarPlanilha(processo=3, index=index)
                 gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
             elif str(mensagem) == "2":
                 inserirPlanilha(confirmado=False, index=index)
-                enviarMensagem(mensagem=f'O contato {numero} cancelou a presença no imóvel: {codImovel}', numero=numero)
+                enviarMensagem(mensagem=f'O contato {numero} cancelou a presença no imóvel: {codImovel}', numero="21992193853")
                 atualizarPlanilha(processo=9, index=index)
             else:
                 enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)

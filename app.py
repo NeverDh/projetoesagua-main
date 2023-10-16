@@ -40,13 +40,13 @@ def enviarNotificacao():
         if notificar == True:
             match processoNotificacao:
                 case 1:
-                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', "?")
+                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', contatos_processo["Telefone"][index])
                 case 2:
-                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', "?")
+                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', contatos_processo["Telefone"][index])
                 case 3:
-                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', "?")
+                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', contatos_processo["Telefone"][index])
                 case 4:
-                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', "?")
+                    auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', contatos_processo["Telefone"][index])
 
 
 def exportarContatos():
@@ -94,9 +94,9 @@ if __name__ == "__main__":
     # schedule.every(60).minutes.do(exportarContatos)
     # schedule.every(380).seconds.do(automatizar_email)
     # schedule.every(70).minutes.do(integrarPlanilhas)
-    # schedule.every(30).minutes.do(enviarNotificacao)
+    schedule.every(1).minute.do(enviarNotificacao)
     integrarPlanilhas()
-    # y = threading.Thread(target=verificarProcessos)
-    # y.start()
+    y = threading.Thread(target=verificarProcessos)
+    y.start()
     iniciarServer()
     
