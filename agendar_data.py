@@ -56,10 +56,12 @@ class RetornarData:
                 eventos = (list(enumerate(index.keys(), 0)))
                 eventos_id = (list(enumerate(index2.keys(), 0)))
         
+        
 
         # pegando a lista com index criado, adicionando e numerando nas duas variáveis 
         eventos = (list(enumerate(index.keys(), 0)))
         eventos_id = list(enumerate(index2.keys(), 0))
+
         
         # Verificando se vai precisar ou não de um index
         if not eventos:
@@ -71,8 +73,6 @@ class RetornarData:
                 # indexação para acessar o item desejado na lista
                 index_desejado = str(eventos_id[opcao])
                 index_texto = index_desejado[5:31]
-                data_desejada = str(eventos[opcao])
-                data_texto = data_desejada[5:15]
 
                 event = service.events().get(calendarId='itaimoveis7@gmail.com', eventId=index_texto).execute()
                 # Corpo do novo evento(transformando numa data indisponivel)
@@ -80,12 +80,12 @@ class RetornarData:
                     'summary': f'Visita agendada, {codigo_imovel}',
                     'description': f'Agendado,{numero},{codigo_imovel}',
                     'start': {
-                        'date': data_texto,
+                        'dateTime': start,
                         'timeZone': 'America/Sao_Paulo',
                     },
                     'colorId': '11',
                     'end': {
-                        'date': data_texto,
+                        'dateTime': end,
                         'timeZone': 'America/Sao_Paulo',
                     },
                         }
@@ -95,12 +95,3 @@ class RetornarData:
                 except Exception as e:
                     print(f'Erro ao criar o evento: {e}')
                 
-
-   
-    
-
-        
-            
-    
-        
-

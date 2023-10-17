@@ -45,9 +45,9 @@ class excluiragendamento:
                 start = event['start'].get('dateTime', event['start'].get('date'))
                 end = event['end'].get('dateTime', event['end'].get('date'))
                 traco = '-'
-                horario_incial = start[0:19]
+                horario_inicial = start[0:19]
                 horario_final = end[11:19]
-                horario = horario_incial + traco + horario_final
+                horario = horario_inicial + traco + horario_final
                 id_evento = event['id']
                 index2[id_evento].append(event)
                 index[horario].append(event)
@@ -55,38 +55,32 @@ class excluiragendamento:
                 eventos = (list(enumerate(index.keys(), 0)))
                 eventos_id = (list(enumerate(index2.keys(), 0)))
 
-                print(eventos_id)
-
-
             if not eventos:
                 print("Não há datas disponiveis")
             else:
                 # indexação para acessar o item desejado na lista
                 index_desejado = str(eventos_id[0])
                 index_texto = index_desejado[5:31]
-                data_desejada = str(eventos[0])
-                data_texto = data_desejada[5:15]
 
                 event = service.events().get(calendarId='itaimoveis7@gmail.com', eventId=index_texto).execute()
                 # Corpo do novo evento(transformando numa data disponivel)
-                    
+
                 try:
                     service.events().delete(calendarId=calendar_id, eventId=index_texto).execute()
                     print("Evento excluído com sucesso!")
                 except Exception as e:
                     print(f"Erro ao excluir o evento: {e}")
-                        
-
+                                 
             event = {
                         'summary': f'Data Disponível,{codigo_imovel}',
                         'description': f'disponivel,{codigo_imovel}',
                         'start': {
-                            'date': data_texto,
+                            'dateTime': start,
                             'timeZone': 'America/Sao_Paulo',
                         },
-                        'colorId': '9',
+                        'colorId': '1',
                         'end': {
-                            'date': data_texto,
+                            'dateTime': end,
                             'timeZone': 'America/Sao_Paulo',
                         },
                             }
