@@ -5,7 +5,6 @@ import auxiliar
 import schedule
 from datetime import datetime, timedelta
 import pandas as pd
-import psutil
 
 app = Flask(__name__)
 
@@ -73,6 +72,8 @@ def enviarNotificacao():
 def exportarContatos():
     objeto_exportar = exportar()
     objeto_exportar.exportacao_contatos()
+    objeto_enviaremail = automatizar_email()
+    objeto_enviaremail.enviar_email()
 
 def integrarPlanilhas():
     objeto_automacao_planilha = planilhauto()
@@ -112,14 +113,14 @@ def index():
     return "ROBO EM FUNCIONAMENTO"
 
 if __name__ == "__main__":
-    # schedule.every(60).minutes.do(exportarContatos)
-    # schedule.every(380).seconds.do(automatizar_email)
-    # schedule.every(70).minutes.do(integrarPlanilhas)
-    # schedule.every(30).seconds.do(enviarNotificacao)
-    # with lock:
-    #     y = threading.Thread(target=verificarProcessos)
-    #     y.start()
-    # enviarNotificacao()
-    # integrarPlanilhas()
+    schedule.every(60).minutes.do(exportarContatos)
+    schedule.every(70).minutes.do(integrarPlanilhas)
+    schedule.every(30).minutes.do(enviarNotificacao)
+    with lock:
+        y = threading.Thread(target=verificarProcessos)
+        y.start()
+    exportarContatos()
+    integrarPlanilhas()
+    enviarNotificacao()
     iniciarServer()
     

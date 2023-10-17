@@ -2,8 +2,10 @@ import pandas as pd
 from importacoes import *
 import requests
 
-def encaminharMensagem(mensagem):
-    None
+def encaminharMensagem(mensagem, numero):
+    mensagemWP = f"O contato {numero}, contatou o suporte com a seguinte mensagem:\n"
+    mensagemWP += mensagem
+    enviarMensagem(mensagem=mensagemWP, numero="21990033942")
 
 def verificarProcesso(numero):
     contatos_processo = pd.read_excel("contatos_processo.xlsx")
@@ -282,7 +284,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             
             x = pegarDados(suporte=True, index=index)
             if x == True:
-                encaminharMensagem(mensagem)
+                encaminharMensagem(mensagem, numero)
 
 
 
@@ -393,13 +395,6 @@ def integrarPlanilhas():
 
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
 
-    for index, _ in enumerate(contatos_processo["Telefone"]):
-        dados = {
-            "Telefone": contatos_processo["Telefone"][index],
-            "Processo": contatos_processo["Processo"][index]
-        }
-        dadosArray.append(dados)
-
     for index, item in enumerate(contatos_checados["Telefone"]):
         if item == 1:
             continue
@@ -417,9 +412,10 @@ def integrarPlanilhas():
 
             dadosArray.append(dados)
 
-    plan = pd.DataFrame(dadosArray)
+    if len(dadosArray) > 0:
+        plan = pd.DataFrame(dadosArray)
 
-    plan.to_excel("contatos_processo.xlsx", index=False)
+        plan.to_excel("contatos_processo.xlsx", index=False)
 
 
 
