@@ -130,7 +130,7 @@ def tratarDatas(datas):
         datasFormatadas += dataFormatada
     return datasFormatadas
 
-def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=False, multiplos=True):
+def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=False, multiplos=True, reagendamento=False):
     match processo:
         case 1:
 
@@ -139,8 +139,9 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             gerenciarProcesso(processo=2, numero=numero, mensagem=mensagem, index=index)
 
         case 2:
-
             print("Entrei no dois")
+            if reagendamento == True:
+                mensagem = "1" 
             if str(mensagem) == "1":
                 imoveis = contarImoveis(numero)
                 if len(imoveis) == 1:
@@ -251,8 +252,8 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 objeto_excluir_data.removeragendamento(numero=numero, codigo_imovel=codImovel)
                 inserirPlanilha(confirmado=True, index=index)
                 enviarMensagem(mensagem=f'O contato {numero} reagendou a presença no imóvel: {codImovel}', numero="21992193853")
-                atualizarPlanilha(processo=3, index=index)
-                gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
+                atualizarPlanilha(processo=2, index=index)
+                gerenciarProcesso(processo=2, numero=numero, mensagem=mensagem, index=index, reagendamento=True)
             elif str(mensagem) == "2":
                 objeto_excluir_data = excluiragendamento()
                 objeto_excluir_data.removeragendamento(numero=numero, codigo_imovel=codImovel)
@@ -289,7 +290,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
 
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-5da4a8768d/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-459d5f834c/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -297,7 +298,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "8031c552420b99dcaa2f561bfb0a5023"
+        "Authorization": "c90e811e39d80f5666a236ce114b75f1"
     }
 
     response = requests.post(url, json=payload, headers=headers)

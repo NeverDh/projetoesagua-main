@@ -113,14 +113,14 @@ def index():
     return "ROBO EM FUNCIONAMENTO"
 
 if __name__ == "__main__":
-    schedule.every(60).minutes.do(exportarContatos)
-    schedule.every(70).minutes.do(integrarPlanilhas)
-    schedule.every(30).minutes.do(enviarNotificacao)
+    # schedule.every(60).minutes.do(exportarContatos)
+    # schedule.every(70).minutes.do(integrarPlanilhas)
+    schedule.every(1).minute.do(enviarNotificacao)
     with lock:
         y = threading.Thread(target=verificarProcessos)
         y.start()
     exportarContatos()
     integrarPlanilhas()
-    enviarNotificacao()
+    # enviarNotificacao()
     iniciarServer()
     
