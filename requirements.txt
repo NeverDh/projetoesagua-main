@@ -32,12 +32,14 @@ httplib2
 httpx                   
 idna                     
 imap-tools               
-isort                   
+isort                  
+imapclient 
 lazy-object-proxy        
 mccabe                   
 numpy                   
 oauthlib                 
-openpyxl                 
+openpyxl               
+flask  
 outcome                  
 packaging                
 pandas                 

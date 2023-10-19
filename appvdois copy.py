@@ -5,6 +5,7 @@ import auxiliar
 import schedule
 from datetime import datetime, timedelta
 import pandas as pd
+import queue
 
 app = Flask(__name__)
 
@@ -104,8 +105,11 @@ def verificarProcessos():
 def iniciarServer():
     app.run(port=80)
 
-
+chat_queue = queue.Queue()
+semaphore = threading.Semaphore(1)
 lock = threading.Lock()
+thread_pool = []
+output_queue = queue.Queue()
 
 @app.route("/chat", methods=['POST'])
 def chat():
@@ -114,15 +118,32 @@ def chat():
         if verifica["Type"] == "receveid_message":
             numero = (verifica["Body"]["Info"]["RemoteJid"])[2:13]
             processoIndex = auxiliar.verificarProcesso(numero)
-            if processoIndex != None:
-                with lock:
-                    thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
-                    thread.daemon = True
-                    thread.start()
+            if processoIndex is not None:
+                # Adicione a requisição à fila
+                chat_queue.put(request.json)
     except Exception as e:
         return "Não interessa"
     return "Concluído"
 
+def processar_fila():
+    while True:
+        if not chat_queue.empty():
+            request_data = chat_queue.get()
+            thread = threading.Thread(target=processar_mensagem, args=(request_data,))
+            thread.daemon = True
+            thread.start()
+            thread.join()  # Aguarde o término do processamento da mensagem
+            # Adicione a resposta à fila de mensagens de saída
+            output_queue.put("Concluído")
+
+def processar_mensagem(request_data):
+    with lock:
+        auxiliar.mensagemRecebida(request_data)
+
+def processar_mensagens_saida():
+    while True:
+        if not output_queue.empty():
+            mensagem = output_queue.get()
 
 @app.route("/", methods=['POST'])
 def index():
@@ -136,7 +157,18 @@ if __name__ == "__main__":
     #     y = threading.Thread(target=verificarProcessos)
     #     y.start()
     # exportarContatos()
+    # Inicie a função para processar a fila em segundo plano
+    server = threading.Thread(target=iniciarServer)
+    server.start()
+    chat_thread = threading.Thread(target=processar_fila)
+    chat_thread.daemon = True
+    chat_thread.start()
+
+    # Inicie a função para processar as mensagens de saída
+    output_thread = threading.Thread(target=processar_mensagens_saida)
+    output_thread.daemon = True
+    output_thread.start()
     integrarPlanilhas()
-    enviarNotificacao()
-    iniciarServer()
+    # enviarNotificacao()
+    
     

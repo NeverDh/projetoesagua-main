@@ -5,6 +5,7 @@ import auxiliar
 import schedule
 from datetime import datetime, timedelta
 import pandas as pd
+import queue
 
 app = Flask(__name__)
 
@@ -104,7 +105,8 @@ def verificarProcessos():
 def iniciarServer():
     app.run(port=80)
 
-
+chat_queue = queue.Queue()
+chat_semaphore = threading.Semaphore(1)
 lock = threading.Lock()
 
 @app.route("/chat", methods=['POST'])
@@ -114,15 +116,24 @@ def chat():
         if verifica["Type"] == "receveid_message":
             numero = (verifica["Body"]["Info"]["RemoteJid"])[2:13]
             processoIndex = auxiliar.verificarProcesso(numero)
-            if processoIndex != None:
-                with lock:
-                    thread = threading.Thread(target=auxiliar.mensagemRecebida, args=(request.json,))
-                    thread.daemon = True
-                    thread.start()
+            if processoIndex is not None:
+                # Adicione a requisição à fila
+                chat_queue.put(request.json)
     except Exception as e:
         return "Não interessa"
     return "Concluído"
 
+def processar_fila():
+    while True:
+        if not chat_queue.empty():
+            request_data = chat_queue.get()
+            # Use o semáforo para controlar o acesso concorrente
+            chat_semaphore.acquire()
+            try:
+                with lock:
+                    auxiliar.mensagemRecebida(request_data)
+            finally:
+                chat_semaphore.release()
 
 @app.route("/", methods=['POST'])
 def index():
@@ -136,7 +147,12 @@ if __name__ == "__main__":
     #     y = threading.Thread(target=verificarProcessos)
     #     y.start()
     # exportarContatos()
+    chat_thread = threading.Thread(target=iniciarServer)
+    chat_thread.start()
+    chat_thread = threading.Thread(target=processar_fila)
+    chat_thread.daemon = True
+    chat_thread.start()
     integrarPlanilhas()
-    enviarNotificacao()
-    iniciarServer()
+    
+    # enviarNotificacao()
     

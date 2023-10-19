@@ -1,7 +1,8 @@
 from importacoes import *
+import random
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-459d5f834c/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-b8e53cf991/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -9,7 +10,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "c90e811e39d80f5666a236ce114b75f1"
+        "Authorization": "289dfc07e4f2d98d25fe0b778fea8035"
     }
 
 

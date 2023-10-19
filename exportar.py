@@ -6,6 +6,7 @@ class exportar:
         servico = Service(ChromeDriverManager().install())
         chrome_options = Options()
         chrome_options.add_experimental_option("detach", True)
+        chrome_options.add_argument("--headless=new")
         # chrome_options.add_argument("--window-size=1920,1080")
         janela = webdriver.Chrome(service=servico, options=chrome_options)
 

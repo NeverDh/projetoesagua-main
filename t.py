@@ -1,23 +1,37 @@
 import pandas as pd
 from datetime import datetime, timedelta
-import auxiliar
+import app
+import time
 
-now = datetime.now().strftime("%Y-%m-%d %H:%M")
-now = datetime.strptime(now, "%Y-%m-%d %H:%M")
+def excluirProcessoUnico(numero):
+    try:
+        contatos_processo = pd.read_excel("contatos_processo.xlsx")
+        dados = []
+        for index, _ in enumerate(contatos_processo["Telefone"]):
+            if str(numero) == str(contatos_processo["Telefone"][index]):
+                print(index)
+                print("ADICIONANDO NO ARRAY")
+                dados.append(index)
+        if len(dados) > 1:
+            for indice in range(len(dados)):
+                print(indice)
+                print(dados[indice])
+                if indice == 0:
+                    continue
+                else:
+                    print("Excluido")
+                    contatos_processo = contatos_processo.drop(dados[indice])
+                    contatos_processo.to_excel('contatos_processo.xlsx', index=False)
+            contatos_processo = pd.read_excel("contatos_processo.xlsx")
+            for index, _ in enumerate(contatos_processo["Telefone"]):
+                if str(numero) == str(contatos_processo["Telefone"][index]):
+                    return index
+        return False
+    except Exception as e:
+        print(e)
+        print("ERRO CONTROLADO")
+        time.sleep(2)
+        excluirProcessoUnico(numero)
 
-doisDias = now + timedelta(days=2)
-umDia = now + timedelta(days=1)
-seisHoras = now + timedelta(hours=6)
-meiaHora = now + timedelta(minutes=30)
-contatos_processo = pd.read_excel("contatos_processo.xlsx")
-for _, data in enumerate(contatos_processo["Data"]):
-    notificar = False
-    data = datetime.strptime(data, "%Y-%m-%d %H:%M")
-    if doisDias >= data or umDia >= data or seisHoras >= data or meiaHora >= data:
-        notificar = True
-    if notificar == True:
-        auxiliar.enviarMensagem(f'Você confirma a visitação ao imóvel: {None} no dia {data}', "?")
-    
-
-
-            
+app.integrarPlanilhas()
+excluirProcessoUnico("21992193853")
