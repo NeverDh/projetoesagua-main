@@ -131,7 +131,7 @@ def tratarDatas(datas):
         datasFormatadas += dataFormatada
     return datasFormatadas
 
-def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=False, multiplos=True, reagendamento=False):
+def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=False, multiplos=True, reagendamento=False, erroAgendamento=False):
     match processo:
         case 1:
 
@@ -146,7 +146,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 mensagem = "1" 
             if str(mensagem) == "1":
                 imoveis = contarImoveis(numero)
-                if len(imoveis) == 1:
+                if len(imoveis) == 1 and erroAgendamento != False:
                     gerenciarProcesso(processo=3, numero=numero, index=index, mensagem=mensagem, multiplos=False)
                 else:
                     enviarMensagem(mensagem="Pra qual imóvel você deseja agendar?\nAguarde trazendo os imóveis...\n", numero=numero)
@@ -205,8 +205,8 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 quantidade = int(pegarDados(index=index, quantidade=quantidade, numero=numero))
                 if len(datas) != quantidade:
                     enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
-                    atualizarPlanilha(processo=3, index=index)
-                    gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index)
+                    atualizarPlanilha(processo=2, index=index)
+                    gerenciarProcesso(processo=2, numero=numero, mensagem=mensagem, index=index, erroAgendamento=True)
             except Exception as e:
                 print(e)
                 print("ERRO CONTROLADO 4 SEM DATAS")
