@@ -141,7 +141,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
 
         case 2:
             print("Entrei no dois")
-            if reagendamento == True:
+            if reagendamento == True or erroAgendamento != False:
                 mensagem = "1" 
             if str(mensagem) == "1":
                 imoveis = contarImoveis(numero)
@@ -204,8 +204,9 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 quantidade = int(pegarDados(index=index, quantidade=quantidade, numero=numero))
                 if len(datas) != quantidade:
                     enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
-                    atualizarPlanilha(processo=2, index=index)
-                    gerenciarProcesso(processo=2, numero=numero, mensagem=mensagem, index=index, erroAgendamento=True)
+                    atualizarPlanilha(processo=3, index=index)
+                    gerenciarProcesso(processo=3, numero=numero, mensagem=mensagem, index=index, erroAgendamento=True)
+                    return None
             except Exception as e:
                 print(e)
                 print("ERRO CONTROLADO 4 PRIMEIRA EXCEPTION")
