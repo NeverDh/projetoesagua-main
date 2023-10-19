@@ -20,7 +20,6 @@ def excluirProcessoUnico(numero):
         for index, _ in enumerate(contatos_processo["Telefone"]):
             if str(numero) == str(contatos_processo["Telefone"][index]):
                 print(index)
-                print("ADICIONANDO NO ARRAY")
                 dados.append(index)
         if len(dados) > 1:
             for indice in range(len(dados)):
@@ -173,7 +172,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                     indexImovel = pegarIndex(numero, mensagem)
                 except Exception as e:
                     print(e)
-                    print("ERRO CONTROLADO 3 PEGAR INDEX")
+                    print("ERRO CONTROLADO 3 PRIMEIRA EXCEPTION")
                     enviarMensagem(mensagem="Opção inválida! Por favor escolha uma das opções acima.\n", numero=numero)
                     return None
             codImovel = pegarDados(codImovel=True, index=indexImovel if multiplos == True else index)
@@ -183,7 +182,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 tamanhoData = len(datas)
             except Exception as e:
                 print(e)
-                print("ERRO CONTROLADO 3 SEM DATAS")
+                print("ERRO CONTROLADO 3 SEGUNDA EXCEPTION")
                 enviarMensagem(mensagem=f"Sem datas disponiveis pro imóvel {codImovel}\nPor favor, tente outro dia!", numero=numero)
                 atualizarPlanilha(processo=1, index=index)
                 return None
@@ -209,7 +208,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                     gerenciarProcesso(processo=2, numero=numero, mensagem=mensagem, index=index, erroAgendamento=True)
             except Exception as e:
                 print(e)
-                print("ERRO CONTROLADO 4 SEM DATAS")
+                print("ERRO CONTROLADO 4 PRIMEIRA EXCEPTION")
                 enviarMensagem(mensagem="Peço perdão, mas houve alterações na lista de datas!\n", numero=numero)
                 enviarMensagem(mensagem=f"Sem datas disponiveis pro imóvel {codImovel}\nPor favor, tente outro dia!", numero=numero)
                 atualizarPlanilha(processo=1, index=index)
@@ -220,14 +219,14 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 inserirPlanilha(data=data, index=index)
             except Exception as e:
                 print(e)
-                print("ERRO CONTROLADO 4 INDEX OUT RANGE")
+                print("ERRO CONTROLADO 4 SEGUNDA EXCEPTION")
                 enviarMensagem(mensagem=f'Opção inválida! Por favor, escolha uma das opções acima.', numero=numero)
                 return None
             try:
                 objeto_retorna_data.retornar_datas(opcao=int(mensagem), enviar=True, codigo_imovel=codImovel, numero=numero)
             except Exception as e:
                 print(e)
-                print("ERRO CONTROLADO INDEX OUT RANGE")
+                print("ERRO CONTROLADO TERCEIRA EXCEPTION")
                 enviarMensagem(mensagem="Opção inválida! Por favor escolha uma das datas acima.\n", numero=numero)
                 return None
             enviarMensagem(mensagem="Data confirmada!\nAtendimento encerrado!", numero=numero)
