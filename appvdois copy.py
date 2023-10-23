@@ -8,19 +8,11 @@ import pandas as pd
 import queue
 
 app = Flask(__name__)
+chat_queue = queue.Queue()
+chat_semaphore = threading.Semaphore(1)
+lock = threading.Lock()
 
 #DESENVOLVENDO WEBHOOK#
-
-# def arquivo_em_uso(nome_arquivo):
-#     for processo in psutil.process_iter(['pid', 'open_files']):
-#         try:
-#             arquivos_abertos = processo.info['open_files']
-#             for arquivo in arquivos_abertos:
-#                 if arquivo.path == nome_arquivo:
-#                     return True
-#         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-#             pass
-#     return False
 
 def enviarNotificacao():
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -40,8 +32,6 @@ def enviarNotificacao():
         try:
             data = datetime.strptime(data, "%Y-%m-%d %H:%M")
         except Exception as e:
-            # print(e)
-            # print("ERRO CONTROLADO")
             continue
 
         if doisDias >= data or umDia >= data or umaHora >= data or meiaHora >= data:
@@ -99,17 +89,11 @@ def integrarPlanilhas():
     
 def verificarProcessos():
     while True:
-        schedule.run_pending()
-        time.sleep(10)
+        chat_queue.put(schedule.run_pending)
+        time.sleep(1200)
 
 def iniciarServer():
     app.run(port=80)
-
-chat_queue = queue.Queue()
-semaphore = threading.Semaphore(1)
-lock = threading.Lock()
-thread_pool = []
-output_queue = queue.Queue()
 
 @app.route("/chat", methods=['POST'])
 def chat():
@@ -119,7 +103,6 @@ def chat():
             numero = (verifica["Body"]["Info"]["RemoteJid"])[2:13]
             processoIndex = auxiliar.verificarProcesso(numero)
             if processoIndex is not None:
-                # Adicione a requisição à fila
                 chat_queue.put(request.json)
     except Exception as e:
         return "Não interessa"
@@ -128,47 +111,34 @@ def chat():
 def processar_fila():
     while True:
         if not chat_queue.empty():
-            request_data = chat_queue.get()
-            thread = threading.Thread(target=processar_mensagem, args=(request_data,))
-            thread.daemon = True
-            thread.start()
-            thread.join()  # Aguarde o término do processamento da mensagem
-            # Adicione a resposta à fila de mensagens de saída
-            output_queue.put("Concluído")
-
-def processar_mensagem(request_data):
-    with lock:
-        auxiliar.mensagemRecebida(request_data)
-
-def processar_mensagens_saida():
-    while True:
-        if not output_queue.empty():
-            mensagem = output_queue.get()
+            item = chat_queue.get()
+            if callable(item):  
+                item()  
+            else:
+                chat_semaphore.acquire()
+                try:
+                    with lock:
+                        auxiliar.mensagemRecebida(item)
+                finally:
+                    chat_semaphore.release()
 
 @app.route("/", methods=['POST'])
 def index():
     return "ROBO EM FUNCIONAMENTO"
 
 if __name__ == "__main__":
-    # schedule.every(60).minutes.do(exportarContatos)
-    # schedule.every(70).minutes.do(integrarPlanilhas)
-    # schedule.every(1).minute.do(enviarNotificacao)
-    # with lock:
-    #     y = threading.Thread(target=verificarProcessos)
-    #     y.start()
-    # exportarContatos()
-    # Inicie a função para processar a fila em segundo plano
-    server = threading.Thread(target=iniciarServer)
-    server.start()
+    schedule.every(60).minutes.do(exportarContatos)
+    schedule.every(70).minutes.do(integrarPlanilhas)
+    schedule.every(30).minutes.do(enviarNotificacao)
+    y = threading.Thread(target=verificarProcessos)
+    y.daemon = True
+    y.start()
+    exportarContatos()
+    chat_thread = threading.Thread(target=iniciarServer)
+    chat_thread.start()
     chat_thread = threading.Thread(target=processar_fila)
     chat_thread.daemon = True
     chat_thread.start()
-
-    # Inicie a função para processar as mensagens de saída
-    output_thread = threading.Thread(target=processar_mensagens_saida)
-    output_thread.daemon = True
-    output_thread.start()
     integrarPlanilhas()
-    # enviarNotificacao()
-    
+    enviarNotificacao()
     

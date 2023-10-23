@@ -8,19 +8,11 @@ import pandas as pd
 import queue
 
 app = Flask(__name__)
+chat_queue = queue.Queue()
+chat_semaphore = threading.Semaphore(1)
+lock = threading.Lock()
 
 #DESENVOLVENDO WEBHOOK#
-
-# def arquivo_em_uso(nome_arquivo):
-#     for processo in psutil.process_iter(['pid', 'open_files']):
-#         try:
-#             arquivos_abertos = processo.info['open_files']
-#             for arquivo in arquivos_abertos:
-#                 if arquivo.path == nome_arquivo:
-#                     return True
-#         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-#             pass
-#     return False
 
 def enviarNotificacao():
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -40,8 +32,6 @@ def enviarNotificacao():
         try:
             data = datetime.strptime(data, "%Y-%m-%d %H:%M")
         except Exception as e:
-            # print(e)
-            # print("ERRO CONTROLADO")
             continue
 
         if doisDias >= data or umDia >= data or umaHora >= data or meiaHora >= data:
@@ -105,10 +95,6 @@ def verificarProcessos():
 def iniciarServer():
     app.run(port=80)
 
-chat_queue = queue.Queue()
-chat_semaphore = threading.Semaphore(1)
-lock = threading.Lock()
-
 @app.route("/chat", methods=['POST'])
 def chat():
     try:
@@ -117,7 +103,6 @@ def chat():
             numero = (verifica["Body"]["Info"]["RemoteJid"])[2:13]
             processoIndex = auxiliar.verificarProcesso(numero)
             if processoIndex is not None:
-                # Adicione a requisição à fila
                 chat_queue.put(request.json)
     except Exception as e:
         return "Não interessa"
@@ -127,7 +112,6 @@ def processar_fila():
     while True:
         if not chat_queue.empty():
             request_data = chat_queue.get()
-            # Use o semáforo para controlar o acesso concorrente
             chat_semaphore.acquire()
             try:
                 with lock:
@@ -140,12 +124,12 @@ def index():
     return "ROBO EM FUNCIONAMENTO"
 
 if __name__ == "__main__":
-    # schedule.every(60).minutes.do(exportarContatos)
-    # schedule.every(70).minutes.do(integrarPlanilhas)
-    # schedule.every(1).minute.do(enviarNotificacao)
-    # with lock:
-    #     y = threading.Thread(target=verificarProcessos)
-    #     y.start()
+    schedule.every(60).minutes.do(exportarContatos)
+    schedule.every(70).minutes.do(integrarPlanilhas)
+    schedule.every(30).minutes.do(enviarNotificacao)
+    y = threading.Thread(target=verificarProcessos)
+    y.daemon = True
+    y.start()
     # exportarContatos()
     chat_thread = threading.Thread(target=iniciarServer)
     chat_thread.start()
