@@ -47,8 +47,8 @@ def enviarNotificacao():
             processoNotificacao = 4
 
         if notificar == True:
+            auxiliar.atualizarPlanilha(processo=5, index=index)
             data = auxiliar.tratarData(data.strftime("%Y-%m-%d %H:%M:%S"))
-            time.sleep(1)
             notificaGet = auxiliar.pegarDados(notifica=True, index=index)
             print(notificaGet)
             notificacaoGet = auxiliar.pegarDados(notifica=True, index=index)
@@ -90,7 +90,7 @@ def integrarPlanilhas():
 def verificarProcessos():
     while True:
         chat_queue.put(schedule.run_pending)
-        time.sleep(1200)
+        time.sleep(10)
 
 def iniciarServer():
     app.run(port=80)
@@ -130,15 +130,14 @@ if __name__ == "__main__":
     schedule.every(60).minutes.do(exportarContatos)
     schedule.every(70).minutes.do(integrarPlanilhas)
     schedule.every(30).minutes.do(enviarNotificacao)
+    chat_thread = threading.Thread(target=iniciarServer)
+    chat_thread.start()
     y = threading.Thread(target=verificarProcessos)
     y.daemon = True
     y.start()
+    chat_threadTwo = threading.Thread(target=processar_fila)
+    chat_threadTwo.daemon = True
+    chat_threadTwo.start()
     exportarContatos()
-    chat_thread = threading.Thread(target=iniciarServer)
-    chat_thread.start()
-    chat_thread = threading.Thread(target=processar_fila)
-    chat_thread.daemon = True
-    chat_thread.start()
     integrarPlanilhas()
-    enviarNotificacao()
     

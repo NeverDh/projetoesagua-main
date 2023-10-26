@@ -48,7 +48,7 @@ class automatizar_email:
                 else:
                     None
             else:
-                time.sleep(10)
+                time.sleep(15)
                 mail.logout()
                 print("E-mail não encontrado...")
                 break

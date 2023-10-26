@@ -2,7 +2,7 @@ from importacoes import *
 import random
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-b8e53cf991/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-ed90816b8e/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -10,7 +10,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "289dfc07e4f2d98d25fe0b778fea8035"
+        "Authorization": "c57cf6629b6b009d3e824e9e1b15a486"
     }
 
 
@@ -31,7 +31,7 @@ class planilhauto:
         links = []
         for link in planilha_link:
             link = str(link).split(",")
-            links.append(link[1])
+            links.append(link)
 
         ids = []
         for id in planilha_codigoimoveis:
@@ -58,20 +58,24 @@ class planilhauto:
             numeros_exportados.append(numero)
         dados = []
         for numeroChecados in planilha_checados['Telefone']:
-            dados.append(numeroChecados)
+            dados.append(str(numeroChecados))
             
         for index, numero in enumerate(planilha_contatos):
-            
+            numero = str(numero)
             if numero in numero_checados:
-                print("Numero {} que solicitou agendamento no imovel {} já foi notificado".format(numero, ids[index]))
+                print(f"Contato {numero} já notificado")
             else:
                 if numero not in dados:
-                    dados.append(numero)
+                    dados.append(str(numero))
                     mensagem = f"Olá, tudo bem? verificamos que você buscou um imóvel no nosso ZAP imóveis.\nDeseja realizar uma visita?\n1 - Sim\n2 - Não"
                     enviarMensagem(mensagem=mensagem, numero=str(numero))
+                else:
+                    print(f"Contato {numero} já notificado")
                 planilha_checados.loc[indice_planilha_contatos, 'Telefone'] = numero
                 indice_planilha_contatos += 1
                 planilha_checados.loc[indice_planilha_codigo, 'Código do imóvel'] = str(ids[index])
                 indice_planilha_codigo += 1
+                planilha_checados.loc[indice_planilha_link, 'link'] = str(links[index])
+                indice_planilha_link += 1
 
         planilha_checados.to_excel('contatos_checados.xlsx', index=False)

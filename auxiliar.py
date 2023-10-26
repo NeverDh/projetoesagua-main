@@ -178,6 +178,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             codImovel = pegarDados(codImovel=True, index=indexImovel if multiplos == True else index)
             try:
                 objeto_retorna_data = RetornarData()
+                print(codImovel)
                 datas = objeto_retorna_data.retornar_datas(codigo_imovel=codImovel)
                 tamanhoData = len(datas)
             except Exception as e:
@@ -233,14 +234,15 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             enviarMensagem(mensagem="Data confirmada!\nAtendimento encerrado!", numero=numero)
             linkImovel = pegarDados(linkImovel=True, index=index)
             enviarEmail(dataEmail, numero, linkImovel)
-            atualizarPlanilha(processo=5, index=index)
+            atualizarPlanilha(processo=10, index=index)
 
         case 5:
 
             codImovel = pegarDados(codImovel=True, index=index, numero=numero)
             if str(mensagem) == "1":
                 inserirPlanilha(confirmado=True, index=index)
-                enviarMensagem(mensagem=f'O contato {numero} confirmou a presença no imóvel: {codImovel}', numero="21992193853")
+                enviarMensagem(mensagem=f'O contato {numero} confirmou a presença no imóvel: {codImovel}', numero="21966652864")
+                enviarMensagem(mensagem=f'Presença confirmada! :)', numero=numero)
             elif str(mensagem) == "2":
                 inserirPlanilha(confirmado=False, index=index)
                 enviarMensagem(mensagem=f'Deseja remarcar a visitação?\n1 - Sim\n2 - Não', numero=numero)
@@ -295,10 +297,11 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             else:
                 gerenciarProcesso(processo=1, numero=numero, mensagem=mensagem, index=index)
 
-
+        case 10:
+            enviarMensagem(mensagem=f'Sua visitação foi agendada!\nCaso tenha dúvidas, mande um email para esse endereço: itaimoveis7@gmail.com', numero=numero)
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-b8e53cf991/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-ed90816b8e/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -306,7 +309,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "289dfc07e4f2d98d25fe0b778fea8035"
+        "Authorization": "c57cf6629b6b009d3e824e9e1b15a486"
     }
 
     response = requests.post(url, json=payload, headers=headers)
@@ -444,9 +447,10 @@ def integrarPlanilhas():
             contatos_processo = pd.read_excel("contatos_processo.xlsx")
 
         for index, item in enumerate(contatos_checados["Telefone"]):
+            item = str(item)
             if item == 1:
                 continue
-            if item not in [i for i in contatos_processo["Telefone"]]:
+            if item not in str([i for i in contatos_processo["Telefone"]]):
                 dados = {
                     'Telefone': item,
                     'Processo': 2,
