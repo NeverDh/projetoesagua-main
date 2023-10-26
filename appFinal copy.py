@@ -113,17 +113,27 @@ def chat():
 def processar_fila():
     while True:
         time.sleep(1)
-        if not chat_queue.empty():
-            item = chat_queue.get()
-            if callable(item):  
-                item()  
-            else:
+        if verificar_condicao_do_link():  
+            if not chat_queue.empty():
+                item = chat_queue.get()
                 chat_semaphore.acquire()
                 try:
-                    with lock:
-                        auxiliar.mensagemRecebida(item)
+                    if callable(item):
+                        item()
+                    else:
+                        with lock:
+                            auxiliar.mensagemRecebida(item)
                 finally:
                     chat_semaphore.release()
+
+def verificar_condicao_do_link():
+    try:
+        response = requests.get("https://v5.chatpro.com.br/chatpro-ed90816b8e/api/v1/status")
+        if response.status_code == 200:
+            return True
+    except Exception as e:
+        pass
+    return False
 
 @app.route("/", methods=['POST'])
 def index():

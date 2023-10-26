@@ -217,7 +217,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
                 return None
             try:
                 dataEmail = f"{(datas[int(mensagem)][1])[8:10]}/{(datas[int(mensagem)][1])[5:7]}/{(datas[int(mensagem)][1])[0:4]} às {(datas[int(mensagem)][1])[11:16]}"
-                data = f"{str((datas[int(mensagem)][1])[0:9])} {str((datas[int(mensagem)][1])[11:16])}"
+                data = f"{str((datas[int(mensagem)][1])[0:10])} {str((datas[int(mensagem)][1])[11:16])}"
                 inserirPlanilha(data=data, index=index)
             except Exception as e:
                 print(e)

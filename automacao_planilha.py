@@ -56,6 +56,7 @@ class planilhauto:
 
         for numero in planilha_contatos:
             numeros_exportados.append(numero)
+        enviarMensagens = []
         dados = []
         for numeroChecados in planilha_checados['Telefone']:
             dados.append(str(numeroChecados))
@@ -66,9 +67,12 @@ class planilhauto:
                 print(f"Contato {numero} já notificado")
             else:
                 if numero not in dados:
+                    objetoMensagens = {}
                     dados.append(str(numero))
                     mensagem = f"Olá, tudo bem? verificamos que você buscou um imóvel no nosso ZAP imóveis.\nDeseja realizar uma visita?\n1 - Sim\n2 - Não"
-                    enviarMensagem(mensagem=mensagem, numero=str(numero))
+                    objetoMensagens['Numero'] = str(numero)
+                    objetoMensagens['Mensagem'] = str(mensagem)
+                    enviarMensagens.append(objetoMensagens)
                 else:
                     print(f"Contato {numero} já notificado")
                 planilha_checados.loc[indice_planilha_contatos, 'Telefone'] = numero
@@ -79,3 +83,5 @@ class planilhauto:
                 indice_planilha_link += 1
 
         planilha_checados.to_excel('contatos_checados.xlsx', index=False)
+
+        return enviarMensagens
