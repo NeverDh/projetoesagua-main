@@ -57,22 +57,22 @@ def enviarNotificacao():
                 case 1:
                     if notificacaoGet == 'Não':
                         auxiliar.inserirPlanilha(notifica="1", index=index)
-                        auxiliar.inserirPlanilha(notificado="Sim", index=index)
+                        auxiliar.inserirPlanilha(notificado="N1", index=index)
                         auxiliar.enviarMensagem(mensagem=f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', numero=int(contatos_processo["Telefone"][index]))
                 case 2:
-                    if notificacaoGet != 'Sim' and (notificaGet == "1" or notificaGet == "Não"):
+                    if notificacaoGet == 'N1' and (notificaGet == "1" or notificaGet == "Não"):
                         auxiliar.inserirPlanilha(notifica="2", index=index)
-                        auxiliar.inserirPlanilha(notificado="Sim", index=index)
+                        auxiliar.inserirPlanilha(notificado="N2", index=index)
                         auxiliar.enviarMensagem(mensagem=f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', numero=str(contatos_processo["Telefone"][index]))
                 case 3:
-                    if notificacaoGet != 'Sim' and (notificaGet == "2" or notificaGet == "Não"):
+                    if notificacaoGet == 'N2' and (notificaGet == "2" or notificaGet == "Não"):
                         auxiliar.inserirPlanilha(notifica="3", index=index)
-                        auxiliar.inserirPlanilha(notificado="Sim", index=index)
+                        auxiliar.inserirPlanilha(notificado="N3", index=index)
                         auxiliar.enviarMensagem(mensagem=f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', numero=str(contatos_processo["Telefone"][index]))
                 case 4:
-                    if notificacaoGet != 'Sim' and (notificaGet == "3" or notificaGet == "Não"):
+                    if notificacaoGet == 'N3' and (notificaGet == "3" or notificaGet == "Não"):
                         auxiliar.inserirPlanilha(notifica="4", index=index)
-                        auxiliar.inserirPlanilha(notificado="Sim", index=index)
+                        auxiliar.inserirPlanilha(notificado="N4", index=index)
                         auxiliar.enviarMensagem(mensagem=f'Você confirma a visitação ao imóvel: {codMovel} no dia {data}?\n1 - Sim\n2 - Não', numero=str(contatos_processo["Telefone"][index]))
 
 
@@ -92,7 +92,7 @@ def integrarPlanilhas():
 def verificarProcessos():
     while True:
         chat_queue.put(schedule.run_pending)
-        time.sleep(10)
+        time.sleep(1200)
 
 def iniciarServer():
     app.run(port=80)

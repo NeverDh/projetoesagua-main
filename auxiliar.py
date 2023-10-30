@@ -34,12 +34,6 @@ def excluirProcessoUnico(numero):
                     return index
         return False
     
-def excluirProcessoTodos(numero):
-    contatos_processo = pd.read_excel("contatos_processo.xlsx")
-        for index, _ in enumerate(contatos_processo["Telefone"]):
-            if str(numero) == str(contatos_processo["Telefone"][index]):
-                contatos_processo = contatos_processo.drop(index)
-                contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
 def excluirProcesso(imovel, numero):
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
