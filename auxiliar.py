@@ -34,6 +34,12 @@ def excluirProcessoUnico(numero):
                     return index
         return False
     
+def excluirProcessoTodos(numero):
+    contatos_processo = pd.read_excel("contatos_processo.xlsx")
+        for index, _ in enumerate(contatos_processo["Telefone"]):
+            if str(numero) == str(contatos_processo["Telefone"][index]):
+                contatos_processo = contatos_processo.drop(index)
+                contatos_processo.to_excel('contatos_processo.xlsx', index=False)
 
 def excluirProcesso(imovel, numero):
         contatos_processo = pd.read_excel("contatos_processo.xlsx")
@@ -146,6 +152,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             if str(mensagem) == "1":
                 imoveis = contarImoveis(numero)
                 if len(imoveis) == 1 and erroAgendamento != False:
+                    print("Passei por onde suspeitou")
                     gerenciarProcesso(processo=3, numero=numero, index=index, mensagem=mensagem, multiplos=False)
                 else:
                     enviarMensagem(mensagem="Pra qual imóvel você deseja agendar?\nAguarde trazendo os imóveis...\n", numero=numero)
@@ -301,7 +308,7 @@ def gerenciarProcesso(processo, mensagem, numero, index, datas=None, quantidade=
             enviarMensagem(mensagem=f'Sua visitação foi agendada!\nCaso tenha dúvidas, mande um email para esse endereço: itaimoveis7@gmail.com', numero=numero)
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-ed90816b8e/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-5e32485e2c/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -309,7 +316,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "c57cf6629b6b009d3e824e9e1b15a486"
+        "Authorization": "32cc4cc30e373fb1841c24c971023d7c"
     }
 
     response = requests.post(url, json=payload, headers=headers)

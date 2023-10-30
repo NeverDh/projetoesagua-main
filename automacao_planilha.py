@@ -2,7 +2,7 @@ from importacoes import *
 import random
 
 def enviarMensagem(mensagem, numero):
-    url = "https://v5.chatpro.com.br/chatpro-ed90816b8e/api/v1/send_message"
+    url = "https://v5.chatpro.com.br/chatpro-5e32485e2c/api/v1/send_message"
     payload = {
     "number": numero,
     "message": mensagem
@@ -10,7 +10,7 @@ def enviarMensagem(mensagem, numero):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "Authorization": "c57cf6629b6b009d3e824e9e1b15a486"
+        "Authorization": "32cc4cc30e373fb1841c24c971023d7c"
     }
 
 
@@ -69,6 +69,7 @@ class planilhauto:
                 if numero not in dados:
                     objetoMensagens = {}
                     dados.append(str(numero))
+                    print("Adicionando")
                     mensagem = f"Olá, tudo bem? verificamos que você buscou um imóvel no nosso ZAP imóveis.\nDeseja realizar uma visita?\n1 - Sim\n2 - Não"
                     objetoMensagens['Numero'] = str(numero)
                     objetoMensagens['Mensagem'] = str(mensagem)
